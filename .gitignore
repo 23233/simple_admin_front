@@ -10,6 +10,8 @@
 /dist
 /simple_admin_templates
 
+/.idea
+
 # misc
 .DS_Store
 
