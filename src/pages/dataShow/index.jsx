@@ -376,7 +376,11 @@ const DataShow = (props) => {
             pagination={{
               hideOnSinglePage: true,
               pageSize: routerData.page_size,
+              showSizeChanger: false,
               total: routerData.all,
+              showTotal: (total, range) => {
+                return (`共有 ${total} 条数据`);
+              },
               current: routerData.page,
               onChange: pageChange,
             }}
