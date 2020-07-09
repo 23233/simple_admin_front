@@ -9,7 +9,7 @@
 # production
 /dist
 /simple_admin_templates
-
+*.go
 /.idea
 
 # misc
