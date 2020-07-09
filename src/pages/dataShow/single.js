@@ -1,12 +1,13 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
 import req from '../../utils/url';
-import { useModel } from 'umi';
+import { Link, useModel, history } from 'umi';
 import { useRequest, useMount } from '@umijs/hooks';
 import CollectionCreateForm from './dataForm';
-import { Button, Spin, Descriptions, Space } from 'antd';
+import { Button, Spin, Typography, Space, Tooltip, Statistic, Row, Col } from 'antd';
 import ROUTERS from '../../router';
-import { history } from '../../.umi/core/history';
+
+const { Text, Paragraph } = Typography;
 
 export default function(props) {
   const { id, routerName } = props.match.params;
@@ -57,39 +58,49 @@ export default function(props) {
     actionSubmit(selectAction.path, values, selectAction.methods);
   };
 
+
   return (
     <PageHeaderWrapper content={'数据页'}>
       <Spin spinning={loading}>
-        <div style={{ background: '#fff', marginBottom: 5 }}>
+        <Space>
+          <Button href={ROUTERS.data_manage + '?tab=' + routerName}>返回</Button>
+
           {
-            data && <Descriptions
-              bordered
-              column={{ xxl: 6, xl: 4, lg: 3, md: 3, sm: 2, xs: 1 }}
-            >
-              {Object.keys(data).map((d, i) => {
-                return (
-                  <Descriptions.Item key={`d_${i}`} label={d}>{data[d]}</Descriptions.Item>
-                );
-              })}
-            </Descriptions>
+            actionList.length ? actionList.map((d, i) => {
+              return (
+                <Button key={`custom_action_${i}`} onClick={() => customAction(data, d)}>{d.name}</Button>
+              );
+            }) : null
+          }
+        </Space>
+
+        <div style={{ background: '#fff', marginTop: 5 }}>
+          {
+            data &&
+            <Row gutter={8}>
+              {
+                Object.keys(data).map((d, i) => {
+                  return (
+                    <Col xs={24} sm={12} md={6} key={`d_${i}`}>
+                      <div style={{ padding: 5 }}>
+                        <Statistic title={d} value={data[d]}
+                                   valueStyle={{
+                                     overflow: 'hidden',
+                                     wordBreak: 'break-all',
+                                     fontSize: 16,
+                                     fontWeight: 'bold',
+                                   }}/>
+                      </div>
+                    </Col>
+                  );
+                })
+              }
+            </Row>
           }
         </div>
 
 
       </Spin>
-
-
-      <Space>
-        <Button href={ROUTERS.data_manage + '?tab=' + routerName}>返回</Button>
-
-        {
-          actionList.length ? actionList.map((d, i) => {
-            return (
-              <Button key={`custom_action_${i}`} onClick={() => customAction(data, d)}>{d.name}</Button>
-            );
-          }) : null
-        }
-      </Space>
 
 
       {
