@@ -106,7 +106,8 @@ export default function(props) {
       {
         actionModalShow ? <CollectionCreateForm
           fieldsList={selectAction}
-          initValues={{}}
+          initValues={data}
+          isAction={true}
           loading={actionLoading}
           onCreate={customActionCreate}
           onCancel={() => setActionModalShow(false)}

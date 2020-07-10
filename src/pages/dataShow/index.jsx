@@ -148,7 +148,7 @@ const DataShow = (props) => {
   let columns = [];
 
 
-  if (routerData.data.length) {
+  if (routerData?.data?.length) {
     columns.push({
       title: autoincrName,
       dataIndex: autoincrName.toLowerCase(),
