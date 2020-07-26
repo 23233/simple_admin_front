@@ -1,12 +1,14 @@
 import React from 'react';
 import { useModel, history, Link } from 'umi';
+import { Menu, Dropdown, Avatar } from 'antd';
 import { stringify } from 'querystring';
 import Router from '../../router';
+import { LogoutOutlined } from '@ant-design/icons';
 
 import BasicLayout from '@ant-design/pro-layout';
 
 export default function(props) {
-  const { userToken, userInfo } = useModel('useAuthModel');
+  const { userToken, userInfo, signout } = useModel('useAuthModel');
 
   if (!userToken) {
     const queryString = stringify({
@@ -85,6 +87,31 @@ export default function(props) {
     return <Link to={menuItemProps.path}>{defaultDom}</Link>;
   };
 
+  const rightMenusClick = (event) => {
+    const { key } = event;
+    if (key === 'logout') {
+      signout();
+    }
+  };
+
+  const rightContentRender = (HeaderViewProps) => {
+    const menuHeaderDropdown = (
+      <Menu selectedKeys={[]} onClick={rightMenusClick}>
+        <Menu.Item key="logout">
+          <LogoutOutlined/>
+          退出登录
+        </Menu.Item>
+      </Menu>
+    );
+    return (
+      <Dropdown overlay={menuHeaderDropdown}>
+        <span style={{ paddingRight: 30 }}>
+          <Avatar size="small" src={userInfo?.avatar} alt="avatar"/>
+          <span>{userInfo?.name}</span>
+        </span>
+      </Dropdown>
+    );
+  };
 
   return <BasicLayout title={'后台管理'} {...props}
                       breadcrumbRender={(routers = []) => [
@@ -95,7 +122,9 @@ export default function(props) {
                         ...routers,
                       ]}
                       menuDataRender={menuDataRender}
-                      menuItemRender={menuItemRender}>
+                      menuItemRender={menuItemRender}
+                      rightContentRender={rightContentRender}
+  >
     {props.children}
   </BasicLayout>;
 

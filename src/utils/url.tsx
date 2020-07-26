@@ -34,7 +34,14 @@ const req = {
       params: params,
     });
   },
-  gerSingleData: (routerName: string, lineId: number) => {
+  searchRouterData: (routerName: string, searchText: string) => {
+    return Req.post(`${p}/v/${routerName}/search`, {
+      data: {
+        search_text: searchText,
+      },
+    });
+  },
+  getSingleData: (routerName: string, lineId: number) => {
     return Req.get(`${p}/v/${routerName}/${lineId}`);
   },
   // 删除router选中的数据

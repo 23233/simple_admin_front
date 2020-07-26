@@ -1,15 +1,19 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography } from 'antd';
+import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography, Space, Input } from 'antd';
 import { history, Link } from 'umi';
 import req from '../../utils/url';
 
-const { Paragraph } = Typography;
 
 import CollectionCreateForm from './dataForm';
 import { useModel } from 'umi';
 import { useRequest, useMount } from '@umijs/hooks';
 import ROUTERS from '../../router';
+import Tools from '../../utils/tools';
+
+const { Paragraph } = Typography;
+const { Search } = Input;
+
 
 const DataShow = (props) => {
   const { userInfo, config } = useModel('useAuthModel');
@@ -42,6 +46,14 @@ const DataShow = (props) => {
   // 修改选中的行
   const [editRow, setEditRow] = useState({});
 
+  // 搜索的词
+  const [searchInput, setSearchInput] = useState(undefined);
+
+  // 搜索
+  const { run: searchText, data: searchData, loading: searchLoading } = useRequest(req.searchRouterData, {
+    manual: true,
+    debounceInterval: 500,
+  });
 
   const params = props.location.query;
   // 执行操作之后刷新
@@ -132,15 +144,31 @@ const DataShow = (props) => {
       setSelectRouter(params.tab);
       // 获取表的信息
       fetchDataInfo(params.tab);
-      // 获取表数据
-      fetchDataList(params.tab);
+      if (params.search) {
+        searchText(params.tab, params.search);
+      } else {
+        // 获取表数据
+        fetchDataList(params.tab);
+      }
       // 获取自定义action信息
       fetchAction(params.tab);
+      // 清空选中条件
+      setSelectRow([]);
     }
   }, [params]);
 
   const tabChange = (tab) => {
+    setSearchInput(undefined);
     history.push(props.match.url + '?tab=' + tab);
+  };
+
+  // 搜索切换
+  const searchChange = (value) => {
+    if (value) {
+      history.push(props.match.url + '?tab=' + selectRouter + '&search=' + value);
+    } else {
+      tabChange(selectRouter);
+    }
   };
 
   const autoincrName = routerFields?.autoincr || 'id';
@@ -165,19 +193,48 @@ const DataShow = (props) => {
         if (d.types.includes('int')) {
           w = 100;
         }
+        const sp_tags = Tools.parseTags(d.sp_tags);
+        const content = (text) => {
+          let fk = sp_tags.find((e) => e.key === 'fk');
+          let multiple = sp_tags.find((e) => e.key === 'multiple');
+
+          return <React.Fragment>
+            {
+              fk ? multiple ?
+                <Space>
+                  {
+                    text && text.split(',').map((t, i) => {
+                      return (
+                        <Paragraph key={`fk_${i}`} ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
+                          <Tooltip placement="topLeft" title={t}>
+                            <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + t}>{t}</Link>
+                          </Tooltip>
+                        </Paragraph>
+
+                      );
+                    })
+                  }
+                </Space>
+
+                :
+                <Paragraph ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
+                  <Tooltip placement="topLeft" title={text}>
+                    <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + text}>{text}</Link>
+                  </Tooltip>
+                </Paragraph>
+
+                : text
+            }
+
+          </React.Fragment>;
+        };
         columns.push({
           title: d.map_name,
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
           ellipsis: true,
-          render: text => (
-            <Paragraph ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
-              <Tooltip placement="topLeft" title={text}>
-                {text}
-              </Tooltip>
-            </Paragraph>
-          ),
+          render: content,
         });
       }
     });
@@ -235,8 +292,18 @@ const DataShow = (props) => {
 
   const onCreate = values => {
     console.log('Received values of form: ', values);
+
+    Object.keys(values).map((d) => {
+      const v = values[d];
+      if (Array.isArray(v)) {
+        values[d] = v.join();
+      }
+    });
+
+
     // 判断是新增还是变更
     const selectKeys = Object.keys(editRow);
+
     if (selectKeys.length) {
       let hasChange = false;
       // 判断是否有变更
@@ -257,6 +324,7 @@ const DataShow = (props) => {
         return;
       }
     }
+
 
     // 修改
     if (selectKeys.length) {
@@ -299,6 +367,12 @@ const DataShow = (props) => {
       <Col>
         <Button onClick={(e) => fetchDataList(selectRouter)}>刷新</Button>
       </Col>
+      <Col>
+        <Search placeholder="请输入搜索内容" onSearch={searchChange} enterButton allowClear
+                value={searchInput}
+                onChange={(e) => setSearchInput(e.target.value)}
+                loading={searchLoading}/>
+      </Col>
     </Row>
   );
 
@@ -337,7 +411,7 @@ const DataShow = (props) => {
   const group = intelligentGroup();
 
   return (
-    <PageHeaderWrapper content="数据面板页">
+    <PageHeaderWrapper content={`${selectRouter} ${params?.search ? '搜索' + params.search : ''}`}>
       <Card>
         <div style={{ margin: '0 0 15px 0' }}>
           {
@@ -371,9 +445,9 @@ const DataShow = (props) => {
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowKey={autoincrName.toLowerCase()}
             rowSelection={rowSelection}
-            dataSource={routerData.data}
+            dataSource={params?.search ? searchData : routerData.data}
             columns={columns}
-            pagination={{
+            pagination={params?.search ? null : {
               hideOnSinglePage: true,
               pageSize: routerData.page_size,
               showSizeChanger: false,
@@ -385,7 +459,7 @@ const DataShow = (props) => {
               onChange: pageChange,
             }}
             size={'small'}
-            loading={fetchDataLoading}
+            loading={fetchDataLoading || searchLoading}
           />
         </div>
 

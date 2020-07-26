@@ -9,14 +9,31 @@ const toLine = (name) => {
 
 // 解析golang tags
 const parseTags = (originTags) => {
-  return originTags.split().map((b) => {
-    const r = b.replace('(', ':').replace(')', '').split(':');
-    return {
-      'key': r[0],
-      'v': r[1],
-      'value': toLine(r[1]),
-    };
-  });
+  if (originTags) {
+    return originTags.split(' ').map((b) => {
+      if (b.indexOf('(') >= 0) {
+        b = b.replace(/\(/g, ':').replace(/\)/g, '');
+      }
+      if (b.indexOf('\'') >= 0) {
+        b = b.replace(/'/g, '');
+      }
+
+      if (b.indexOf(':') >= 0) {
+        const r = b.split(':');
+        return {
+          'key': r[0],
+          'v': r[1],
+          'value': toLine(r[1]),
+        };
+      }
+      return {
+        'key': b,
+        'v': b,
+        'value': toLine(b),
+      };
+    });
+  }
+  return [];
 };
 
 export default {

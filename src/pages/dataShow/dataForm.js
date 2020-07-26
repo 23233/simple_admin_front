@@ -1,10 +1,21 @@
 import React, { useState } from 'react';
 import Moment from 'moment';
-import { Button, Modal, Form, Input, Radio, InputNumber, Switch, TimePicker, DatePicker } from 'antd';
+import { Button, Modal, Form, Input, Radio, InputNumber, Switch, TimePicker, DatePicker, Select, Spin } from 'antd';
 import Tools from '../../utils/tools';
+import { useRequest } from '@umijs/hooks';
+import req from '../../utils/url';
+
+
+const { Option } = Select;
 
 const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, loading, isAction }) => {
   const [form] = Form.useForm();
+
+  const { run: searchText, data: searchData, loading: searchLoading } = useRequest(req.searchRouterData, {
+    manual: true,
+    debounceInterval: 500,
+  });
+
   let initialValues = {};
   if (!isAction) {
     initialValues = JSON.parse(JSON.stringify(initValues));
@@ -15,6 +26,16 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
         initialValues[d.map_name] = !!parseInt(initValues[d.map_name] || false);
       } else if (['uint', 'uint8', 'uint16', 'uint32', 'uint64', 'int', 'int8', 'int16', 'int32', 'int64', 'float32', 'float64', 'time.Duration'].includes(d.types)) {
         initialValues[d.map_name] = initValues[d.map_name] || 0;
+      }
+      // 再判断类型
+      const sp_tags = Tools.parseTags(d.sp_tags);
+      if (sp_tags && sp_tags.length) {
+        // 先判断是否有外键
+        let fk = sp_tags.find((e) => e.key === 'fk');
+        let multiple = sp_tags.find((e) => e.key === 'multiple');
+        if (fk && multiple) {
+          initialValues[d.map_name] = initValues[d.map_name]?.split(',') || [];
+        }
       }
     });
   } else {
@@ -30,6 +51,12 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
               case 'lineTo':
                 initialValues[d.map_name] = initValues[t.value];
                 break;
+              case 'fk':
+                let multiple = tags.find((e) => e.key === 'multiple');
+                if (multiple) {
+                  initialValues[d.map_name] = initValues[t.value].split(',');
+                }
+                break;
               default:
                 break;
             }
@@ -40,8 +67,42 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
 
   }
 
+  console.log('initialValues', initialValues);
 
-  const TypeToElement = (t) => {
+
+  const TypeToElement = (k) => {
+    // console.log('type to element', k);
+    const t = k.types;
+    // 先匹配类型
+    const sp_tags = Tools.parseTags(k.sp_tags);
+    if (sp_tags && sp_tags.length) {
+      // 先判断是否有外键
+      let fk = sp_tags.find((e) => e.key === 'fk');
+      let multiple = sp_tags.find((e) => e.key === 'multiple');
+      if (fk) {
+        return (
+          <Select
+            showSearch
+            mode={multiple && 'multiple'}
+            showArrow={false}
+            filterOption={false}
+            defaultActiveFirstOption={false}
+            onFocus={() => searchText(fk.value, null)}
+            onSearch={(value) => searchText(fk.value, value)}
+            notFoundContent={searchLoading ? <Spin size="small"/> : null}
+            placeholder="请输入筛选条件"
+            optionLabelProp={'id'}
+            allowClear
+          >
+            {searchData && searchData.length && searchData.map((d, i) => {
+              return (
+                <Option key={d.id} value={d.id}>{JSON.stringify(d)}</Option>
+              );
+            })}
+          </Select>
+        );
+      }
+    }
     switch (t) {
       case 'float32':
       case 'float64':
@@ -73,6 +134,8 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
           <Input placeholder={'please input value'}/>
         );
     }
+
+
   };
 
   const MomentToFormat = (values) => {
@@ -135,7 +198,7 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
                     },
                   ]}
                 >
-                  {TypeToElement(k.types)}
+                  {TypeToElement(k)}
                 </Form.Item>
               );
             }

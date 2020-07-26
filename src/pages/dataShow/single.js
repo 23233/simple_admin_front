@@ -37,7 +37,7 @@ export default function(props) {
     },
   });
 
-  const { data, loading, run: fetchSingle } = useRequest(req.gerSingleData, {
+  const { data, loading, run: fetchSingle } = useRequest(req.getSingleData, {
     manual: true,
   });
 
@@ -60,11 +60,11 @@ export default function(props) {
 
 
   return (
-    <PageHeaderWrapper content={'数据页'}>
+    <PageHeaderWrapper content={`${routerName} ID:${id}`}>
       <Spin spinning={loading}>
         <Space>
-          <Button href={ROUTERS.data_manage + '?tab=' + routerName}>返回</Button>
-
+          <Button onClick={() => history.goBack()}>返回</Button>
+          <Button onClick={() => fetchSingle(routerName, id)}>刷新</Button>
           {
             actionList.length ? actionList.map((d, i) => {
               return (

@@ -36,17 +36,21 @@ const errorHandler = async (error: any) => {
   if (response && response.status) {
     // @ts-ignore
     let content = codeMessage[response.status] || response.statusText;
-    let res = await response.json();
-    if (typeof res === 'object') {
-      if (Array.isArray(res)) {
-        content = res[0];
-        if (typeof res[0] === 'object') {
-          let keys = Object.keys(res[0])[0];
-          content = res[0][keys].toString();
+    try {
+      let res = await response.json();
+      if (typeof res === 'object') {
+        if (Array.isArray(res)) {
+          content = res[0];
+          if (typeof res[0] === 'object') {
+            let keys = Object.keys(res[0])[0];
+            content = res[0][keys].toString();
+          }
+        } else {
+          content = res[Object.keys(res)[0]].toString();
         }
-      } else {
-        content = res[Object.keys(res)[0]].toString();
       }
+    } catch (e) {
+
     }
     const { status, url } = response;
     // 未登录或登录状态过期

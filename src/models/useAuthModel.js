@@ -1,12 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { useLocalStorageState, useMount, useRequest } from '@umijs/hooks';
 import req from '../utils/url';
+import Router from '../router';
 
 
 export default function useAuthModel() {
   let [userInfo, setUserInfo] = useLocalStorageState('simple_user_info');
   let [userToken, setUserToken] = useLocalStorageState('simple_token');
   let [config, setConfig] = useState(null);
+
 
   useMount(async () => {
     const data = await req.getConfig();
@@ -16,7 +18,7 @@ export default function useAuthModel() {
 
   const { run: fetchUserInfo } = useRequest(req.queryCurrent, {
     manual: true, fetchKey: 'fetch_user', onSuccess: (result, params) => {
-      setUserInfo(result)
+      setUserInfo(result);
     },
   });
 
@@ -32,8 +34,8 @@ export default function useAuthModel() {
   }, []);
 
   const signout = useCallback(() => {
-    // signout implementation
-    // setUser(null)
+    setUserInfo();
+    setUserToken();
   }, []);
 
   return {
