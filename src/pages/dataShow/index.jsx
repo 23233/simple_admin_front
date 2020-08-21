@@ -40,6 +40,8 @@ const DataShow = (props) => {
   // 选中的action
   const [selectAction, setSelectAction] = useState({});
 
+  // 当前页码
+  const [nowPage, setNowPage] = useState(1);
   // 当前选中的行
   const [selectRow, setSelectRow] = useState([]);
 
@@ -59,7 +61,7 @@ const DataShow = (props) => {
   // 执行操作之后刷新
   const taskSuccess = (d) => {
     if (!d?.status) {
-      fetchDataList(selectRouter);
+      fetchDataList(selectRouter, { page: nowPage });
     }
   };
   // 获取表信息
@@ -106,7 +108,7 @@ const DataShow = (props) => {
     manual: true,
     onSuccess: (d) => {
       if (!d?.status) {
-        fetchDataList(selectRouter);
+        fetchDataList(selectRouter, { page: nowPage });
         setEditModalShow(false);
       }
     },
@@ -117,7 +119,7 @@ const DataShow = (props) => {
     manual: true,
     onSuccess: (d) => {
       if (!d?.status) {
-        fetchDataList(selectRouter);
+        fetchDataList(selectRouter, { page: nowPage });
         setActionModalShow(false);
       }
     },
@@ -141,6 +143,7 @@ const DataShow = (props) => {
 
   useEffect(() => {
     if (params.tab) {
+      setNowPage(1);
       setSelectRouter(params.tab);
       // 获取表的信息
       fetchDataInfo(params.tab);
@@ -176,6 +179,21 @@ const DataShow = (props) => {
   let columns = [];
 
 
+  //
+  const colTagParse = (tag, text, attr_tag) => {
+    if (!text) {
+      return '';
+    }
+    switch (tag) {
+      case 'img':
+        return <img src={text} alt="图片" width={80} {...attr_tag?.value}/>;
+
+      default:
+        return '';
+    }
+  };
+
+
   if (routerData?.data?.length) {
     columns.push({
       title: autoincrName,
@@ -186,57 +204,6 @@ const DataShow = (props) => {
         const url = ROUTERS.single_data + '/' + selectRouter + '/' + text;
         return <Link to={url}>{text}</Link>;
       },
-    });
-    routerFields?.fields?.map((d, i) => {
-      if (d.map_name !== autoincrName.toLowerCase()) {
-        let w = 200;
-        if (d.types.includes('int')) {
-          w = 100;
-        }
-        const sp_tags = Tools.parseTags(d.sp_tags);
-        const content = (text) => {
-          let fk = sp_tags.find((e) => e.key === 'fk');
-          let multiple = sp_tags.find((e) => e.key === 'multiple');
-
-          return <React.Fragment>
-            {
-              fk ? multiple ?
-                <Space>
-                  {
-                    text && text.split(',').map((t, i) => {
-                      return (
-                        <Paragraph key={`fk_${i}`} ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
-                          <Tooltip placement="topLeft" title={t}>
-                            <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + t}>{t}</Link>
-                          </Tooltip>
-                        </Paragraph>
-
-                      );
-                    })
-                  }
-                </Space>
-
-                :
-                <Paragraph ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
-                  <Tooltip placement="topLeft" title={text}>
-                    <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + text}>{text}</Link>
-                  </Tooltip>
-                </Paragraph>
-
-                : text
-            }
-
-          </React.Fragment>;
-        };
-        columns.push({
-          title: d.map_name,
-          dataIndex: d.map_name,
-          key: `t${d.map_name}`,
-          width: w,
-          ellipsis: true,
-          render: content,
-        });
-      }
     });
     columns.push({
       title: 'operating',
@@ -258,6 +225,62 @@ const DataShow = (props) => {
         );
       },
     });
+
+
+    routerFields?.fields?.map((d, i) => {
+      if (d.map_name !== autoincrName.toLowerCase()) {
+        let w = 200;
+        if (d.types.includes('int')) {
+          w = 100;
+        }
+        const sp_tags = Tools.parseTags(d.sp_tags);
+        const attrs_tags = Tools.parseTags(d.attr_tags);
+
+        const content = (text) => {
+          let fk = sp_tags.find((e) => e.key === 'fk');
+          let multiple = sp_tags.find((e) => e.key === 'multiple');
+          let tag = sp_tags.find((e) => e.key === 'tag');
+
+
+          return <React.Fragment>
+            {
+              fk ? multiple ?
+                <Space>
+                  {
+                    text && text.split(',').map((t, i) => {
+                      return (
+                        <Paragraph key={`fk_${i}`} ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
+                          <Tooltip placement="topLeft" title={t}>
+                            <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + t}>{t}</Link>
+                          </Tooltip>
+                        </Paragraph>
+                      );
+                    })
+                  }
+                </Space>
+                :
+                <Paragraph ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
+                  <Tooltip placement="topLeft" title={text}>
+                    <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + text}>{text}</Link>
+                  </Tooltip>
+                </Paragraph>
+
+                : tag ? colTagParse(tag?.value, text, attrs_tags) : text
+            }
+
+          </React.Fragment>;
+        };
+        columns.push({
+          title: d.map_name,
+          dataIndex: d.map_name,
+          key: `t${d.map_name}`,
+          width: w,
+          ellipsis: true,
+          render: content,
+        });
+      }
+    });
+
   }
 
 
@@ -268,6 +291,7 @@ const DataShow = (props) => {
   };
 
   const pageChange = (page, pageSize) => {
+    setNowPage(page);
     fetchDataList(selectRouter, { page: page });
     rowOnChange([]);
   };
@@ -365,7 +389,7 @@ const DataShow = (props) => {
         <Button type={'default'} onClick={(e) => onAdd()}>新增数据</Button>
       </Col>
       <Col>
-        <Button onClick={(e) => fetchDataList(selectRouter)}>刷新</Button>
+        <Button onClick={(e) => fetchDataList(selectRouter, { page: nowPage })}>刷新</Button>
       </Col>
       <Col>
         <Search placeholder="请输入搜索内容" onSearch={searchChange} enterButton allowClear
