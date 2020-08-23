@@ -179,17 +179,22 @@ const DataShow = (props) => {
   let columns = [];
 
 
-  //
+  // 行标签解析
   const colTagParse = (tag, text, attr_tag) => {
+    let attrs = {};
+    if (attr_tag?.value) {
+      attrs = JSON.parse(attr_tag?.value);
+    }
     if (!text) {
       return '';
     }
+
     switch (tag) {
       case 'img':
-        return <img src={text} alt="图片" width={80} {...attr_tag?.value}/>;
+        return <img src={text} alt="图片" width={80} {...attrs}/>;
 
       default:
-        return '';
+        return text;
     }
   };
 
@@ -209,9 +214,10 @@ const DataShow = (props) => {
       title: 'operating',
       dataIndex: 'operating',
       key: 'toperating',
+      width: 100,
       render: (text, row) => {
         return (
-          <span>
+          <div>
             <Button onClick={(e) => onEdit(row)} type={'link'}>修改</Button>
             {
               actionList.length ? actionList.map((d, i) => {
@@ -221,7 +227,7 @@ const DataShow = (props) => {
                 );
               }) : null
             }
-          </span>
+          </div>
         );
       },
     });
@@ -265,7 +271,11 @@ const DataShow = (props) => {
                   </Tooltip>
                 </Paragraph>
 
-                : tag ? colTagParse(tag?.value, text, attrs_tags) : text
+                : <div style={{ maxWidth: w }}>
+                  <Paragraph ellipsis={{ rows: 2 }} title={text} style={{ marginBottom: 0 }}>
+                    {colTagParse(tag?.value, text, attrs_tags)}
+                  </Paragraph>
+                </div>
             }
 
           </React.Fragment>;
@@ -275,7 +285,6 @@ const DataShow = (props) => {
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
-          ellipsis: true,
           render: content,
         });
       }
