@@ -183,7 +183,10 @@ const DataShow = (props) => {
   const colTagParse = (tag, text, attr_tag) => {
     let attrs = {};
     if (attr_tag?.value) {
-      attrs = JSON.parse(attr_tag?.value);
+      try {
+        attrs = JSON.parse(attr_tag?.value);
+      } catch (e) {
+      }
     }
     if (!text) {
       return '';
@@ -272,8 +275,10 @@ const DataShow = (props) => {
                 </Paragraph>
 
                 : <div style={{ maxWidth: w }}>
-                  <Paragraph ellipsis={{ rows: 2 }} title={text} style={{ marginBottom: 0 }}>
-                    {colTagParse(tag?.value, text, attrs_tags)}
+                  <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 0 }}>
+                    <Tooltip placement="topLeft" title={text}>
+                      {colTagParse(tag?.value, text, attrs_tags)}
+                    </Tooltip>
                   </Paragraph>
                 </div>
             }
