@@ -147,6 +147,7 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
     });
   };
 
+
   const runCreate = () => {
     form
       .validateFields()
@@ -154,6 +155,8 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
         // form.resetFields();
         // 把所有时间转换格式
         MomentToFormat(values);
+        // 格式转换
+
         onCreate(values);
       })
       .catch(info => {

@@ -130,7 +130,7 @@ const DataShow = (props) => {
   useMount(async () => {
     const allTable = await req.getRouterLists();
     setAllRouter(allTable);
-    const defaultSelect = params?.tab ? allTable[params?.tab] : Object.keys(allTable)[0];
+    const defaultSelect = params?.tab ? allTable[params?.tab] : Object.keys(allTable).filter((d) => d !== config.user_model_name)[0];
     setSelectRouter(defaultSelect);
     // 获取表的信息
     fetchDataInfo(defaultSelect);
