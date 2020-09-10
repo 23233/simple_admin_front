@@ -198,7 +198,7 @@ const DataShow = (props) => {
         return <img src={text} alt="图片" width={80} {...attrs}/>;
 
       default:
-        return text;
+        return text.slice(0,50);
     }
   };
 
