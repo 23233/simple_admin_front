@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography, Space, Input } from 'antd';
 import { history, Link } from 'umi';
 import req from '../../utils/url';
+import './index.less';
 
 
 import CollectionCreateForm from './dataForm';
@@ -276,7 +277,8 @@ const DataShow = (props) => {
 
                 : <div style={{ maxWidth: w }}>
                   <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 0 }}>
-                    <Tooltip placement="topLeft" title={text}>
+                    <Tooltip placement="topLeft" title={text} trigger={'click'}
+                             destroyTooltipOnHide={{ keepParent: false }} overlayClassName="tooltip-wrap">
                       {colTagParse(tag?.value, text, attrs_tags)}
                     </Tooltip>
                   </Paragraph>

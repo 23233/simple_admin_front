@@ -7,6 +7,7 @@ import Style from './index.less';
 import { useRequest } from '@umijs/hooks';
 import req from '../../../utils/url';
 import { parse } from 'querystring';
+import ROUTERS from '../../../router';
 
 const { Title } = Typography;
 
@@ -34,6 +35,10 @@ export default (props) => {
               redirect = redirect.substr(redirect.indexOf('#') + 1);
             }
             console.log('redirect', redirect);
+            if (redirect === config?.prefix) {
+              redirect = ROUTERS.welcome;
+              console.log('匹配到前缀');
+            }
 
           } else {
             window.location.href = '/';
