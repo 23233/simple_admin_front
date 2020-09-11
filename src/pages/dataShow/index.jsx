@@ -131,7 +131,7 @@ const DataShow = (props) => {
   useMount(async () => {
     const allTable = await req.getRouterLists();
     setAllRouter(allTable);
-    const defaultSelect = params?.tab ? allTable[params?.tab] : Object.keys(allTable).filter((d) => d !== config.user_model_name)[0];
+    const defaultSelect = params?.tab ? allTable[params?.tab] : Object.keys(allTable).filter((d) => d !== config?.user_model_name)[0];
     setSelectRouter(defaultSelect);
     // 获取表的信息
     fetchDataInfo(defaultSelect);
@@ -419,7 +419,7 @@ const DataShow = (props) => {
   // 对表列表进行自动分组 根据下划线
   const intelligentGroup = () => {
     let group = [];
-    const normalTables = Object.keys(allRouter).filter((d) => d !== config.user_model_name);
+    const normalTables = Object.keys(allRouter).filter((d) => d !== config?.user_model_name);
     const oldData = JSON.parse(JSON.stringify(normalTables));
     normalTables.map((k, i) => {
       const prefix = k.split('_')[0];
@@ -464,7 +464,7 @@ const DataShow = (props) => {
                     {
                       Object.keys(d.children).map((k) => {
                         let v = d.children[k];
-                        if (v !== config.user_model_name) {
+                        if (v !== config?.user_model_name) {
                           return <Radio value={v} key={v}>{v}</Radio>;
                         }
                       })

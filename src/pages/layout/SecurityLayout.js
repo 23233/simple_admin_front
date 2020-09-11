@@ -8,13 +8,17 @@ import { LogoutOutlined } from '@ant-design/icons';
 import BasicLayout from '@ant-design/pro-layout';
 
 export default function(props) {
-  const { userToken, userInfo, signout } = useModel('useAuthModel');
+  const { userToken, userInfo, signout, config } = useModel('useAuthModel');
 
   if (!userToken) {
     const queryString = stringify({
       redirect: window.location.href,
     });
     history.push(Router.login + `?${queryString}`);
+  }
+
+  if (config?.prefix === props?.location?.pathname) {
+    history.push(Router.welcome);
   }
 
   const checkPermissions = (authority, currentAuthority, target, Exception) => {

@@ -67,7 +67,7 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
 
   }
 
-  console.log('initialValues', initialValues);
+  console.log('initialValues', initialValues, fieldsList);
 
 
   const TypeToElement = (k) => {
@@ -147,6 +147,19 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
     });
   };
 
+  const ValuesTypeChange = (values) => {
+    Object.keys(values).map((k, i) => {
+      const v = values[k];
+      const t = fieldsList.fields.find((d) => d.map_name === k);
+      if (['bool'].includes(t.types)) {
+        values[k] = !!parseInt(v);
+      } else if (['uint', 'uint8', 'uint16', 'uint32', 'uint64', 'int', 'int8', 'int16', 'int32', 'int64', 'time.Duration'].includes(t.types)) {
+        values[k] = Number(v);
+      } else if (['float32', 'float64'].includes(t.types)) {
+        values[k] = Number(v);
+      }
+    });
+  };
 
   const runCreate = () => {
     form
@@ -156,7 +169,8 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
         // 把所有时间转换格式
         MomentToFormat(values);
         // 格式转换
-
+        ValuesTypeChange(values);
+        console.log('values', values);
         onCreate(values);
       })
       .catch(info => {
@@ -171,6 +185,7 @@ const CollectionCreateForm = ({ onCreate, onCancel, fieldsList, initValues, load
       okText="提交"
       cancelText="取消"
       onCancel={onCancel}
+      bodyStyle={{maxHeight:"60vh",overflow:"hidden auto"}}
       confirmLoading={loading}
       onOk={runCreate}
     >
