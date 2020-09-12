@@ -215,7 +215,7 @@ const DataShow = (props) => {
       },
     });
     columns.push({
-      title: 'operating',
+      title: '操作',
       dataIndex: 'operating',
       key: 'toperating',
       width: 100,
@@ -288,7 +288,7 @@ const DataShow = (props) => {
           </React.Fragment>;
         };
         columns.push({
-          title: d.map_name,
+          title: d?.comment_tags || d.map_name,
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
