@@ -16,6 +16,8 @@ const DataShow = (props) => {
   const { userInfo, config } = useModel('useAuthModel');
   // 所有表信息
   const [allRouter, setAllRouter] = useState([]);
+  // 所有表别名信息
+  const [remarks, setRemarks] = useState([]);
   // 当前选中的表名
   const [selectRouter, setSelectRouter] = useState(null);
   // 当前选中的表信息
@@ -85,8 +87,11 @@ const DataShow = (props) => {
     if (config) {
       const a = async () => {
         const allTable = await req.getRouterLists();
-        setAllRouter(allTable);
-        const defaultSelect = allTable[config.user_model_name];
+        const remarks = allTable?.remarks;
+        const tables = allTable?.tables;
+        setAllRouter(tables);
+        setRemarks(remarks);
+        const defaultSelect = tables[config.user_model_name];
         setSelectRouter(defaultSelect);
         // 获取表的信息
         fetchDataInfo(defaultSelect);
@@ -100,13 +105,26 @@ const DataShow = (props) => {
   const autoincrName = routerFields?.autoincr || 'id';
 
   let columns = [];
-  if (routerData.data.length) {
+  if (routerData?.data?.length) {
     columns.push({
       title: autoincrName,
       dataIndex: autoincrName.toLowerCase(),
       key: 'tid',
       width: 80,
     });
+    columns.push({
+      title: '操作',
+      dataIndex: 'operating',
+      key: 'toperating',
+      render: (text, row) => {
+        return (
+          <span>
+            <Button onClick={(e) => onEdit(row)} type={'link'}>修改密码</Button>
+          </span>
+        );
+      },
+    });
+
     routerFields?.fields?.map((d, i) => {
       if (d.map_name !== autoincrName.toLowerCase()) {
         let w = 200;
@@ -114,7 +132,7 @@ const DataShow = (props) => {
           w = 100;
         }
         columns.push({
-          title: d.map_name,
+          title: d?.comment_tags || d?.map_name,
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
@@ -131,8 +149,8 @@ const DataShow = (props) => {
     });
     const tagsData = ['guest', 'staff', 'admin'];
     columns.push({
-      title: "roles",
-      dataIndex: "roles",
+      title: '权限组',
+      dataIndex: 'roles',
       render: (text, record) => {
         return (
           tagsData.map(tag => (
@@ -148,18 +166,6 @@ const DataShow = (props) => {
       },
     });
 
-    columns.push({
-      title: 'operating',
-      dataIndex: 'operating',
-      key: 'toperating',
-      render: (text, row) => {
-        return (
-          <span>
-            <Button onClick={(e) => onEdit(row)} type={'link'}>修改密码</Button>
-          </span>
-        );
-      },
-    });
   }
 
   // 变更权限
@@ -227,17 +233,19 @@ const DataShow = (props) => {
 
   const passwordFields = {
     fields: [{
-      map_name: 'password',
       name: 'Password',
-      sp_tags: '',
+      map_name: 'password',
       types: 'string',
+      sp_tags: '',
       validate_tags: '',
+      comment_tags: '',
+      attr_tags: '',
       xorm_tags: 'varchar(100) notnull',
     }],
   };
 
   return (
-    <PageHeaderWrapper content="数据面板页">
+    <PageHeaderWrapper content={remarks[config?.user_model_name]}>
       <Card>
         <div>
           {operations}
@@ -245,13 +253,13 @@ const DataShow = (props) => {
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowKey={autoincrName.toLowerCase()}
             rowSelection={rowSelection}
-            dataSource={routerData.data.filter((d) => d[autoincrName] !== userInfo?.userid)}
+            dataSource={routerData?.data.filter((d) => d[autoincrName] !== userInfo?.userid)}
             columns={columns}
             pagination={{
               hideOnSinglePage: true,
-              pageSize: routerData.page_size,
-              total: routerData.all,
-              current: routerData.page,
+              pageSize: routerData?.page_size,
+              total: routerData?.all,
+              current: routerData?.page,
               onChange: pageChange,
             }}
             size={'small'}

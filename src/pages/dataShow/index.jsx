@@ -20,6 +20,8 @@ const DataShow = (props) => {
   const { userInfo, config } = useModel('useAuthModel');
   // 所有表信息
   const [allRouter, setAllRouter] = useState([]);
+  // 所有表别名信息
+  const [remarks, setRemarks] = useState([]);
   // 当前选中的表名
   const [selectRouter, setSelectRouter] = useState(null);
   // 当前选中的表信息
@@ -130,8 +132,11 @@ const DataShow = (props) => {
   // 获取所有路由列表
   useMount(async () => {
     const allTable = await req.getRouterLists();
-    setAllRouter(allTable);
-    const defaultSelect = params?.tab ? allTable[params?.tab] : Object.keys(allTable).filter((d) => d !== config?.user_model_name)[0];
+    const remarks = allTable?.remarks;
+    const tables = allTable?.tables;
+    setAllRouter(tables);
+    setRemarks(remarks);
+    const defaultSelect = params?.tab ? tables[params?.tab] : Object.keys(tables).filter((d) => d !== config?.user_model_name)[0];
     setSelectRouter(defaultSelect);
     // 获取表的信息
     fetchDataInfo(defaultSelect);
@@ -198,10 +203,9 @@ const DataShow = (props) => {
         return <img src={text} alt="图片" width={80} {...attrs}/>;
 
       default:
-        return text.slice(0,50);
+        return text.slice(0, 50);
     }
   };
-
 
   if (routerData?.data?.length) {
     columns.push({
@@ -288,7 +292,7 @@ const DataShow = (props) => {
           </React.Fragment>;
         };
         columns.push({
-          title: d?.comment_tags || d.map_name,
+          title: d?.comment_tags || d?.map_name,
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
@@ -451,7 +455,7 @@ const DataShow = (props) => {
   const group = intelligentGroup();
 
   return (
-    <PageHeaderWrapper content={`${selectRouter} ${params?.search ? '搜索' + params.search : ''}`}>
+    <PageHeaderWrapper content={`${remarks[selectRouter]} ${params?.search ? '搜索' + params.search : ''}`}>
       <Card>
         <div style={{ margin: '0 0 15px 0' }}>
           {
@@ -465,7 +469,7 @@ const DataShow = (props) => {
                       Object.keys(d.children).map((k) => {
                         let v = d.children[k];
                         if (v !== config?.user_model_name) {
-                          return <Radio value={v} key={v}>{v}</Radio>;
+                          return <Radio value={v} key={v}>{remarks[v]}</Radio>;
                         }
                       })
                     }
@@ -485,17 +489,17 @@ const DataShow = (props) => {
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowKey={autoincrName.toLowerCase()}
             rowSelection={rowSelection}
-            dataSource={params?.search ? searchData : routerData.data}
+            dataSource={params?.search ? searchData : routerData?.data}
             columns={columns}
             pagination={params?.search ? null : {
               hideOnSinglePage: true,
-              pageSize: routerData.page_size,
+              pageSize: routerData?.page_size,
               showSizeChanger: false,
-              total: routerData.all,
+              total: routerData?.all,
               showTotal: (total, range) => {
                 return (`共有 ${total} 条数据`);
               },
-              current: routerData.page,
+              current: routerData?.page,
               onChange: pageChange,
             }}
             size={'small'}
