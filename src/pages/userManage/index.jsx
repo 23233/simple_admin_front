@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography, Tag } from 'antd';
+import {
+  Card,
+  Button,
+  Table,
+  Popconfirm,
+  Row,
+  Col,
+  message,
+  Radio,
+  Tooltip,
+  Typography,
+  Tag,
+} from 'antd';
 import { history } from 'umi';
 import req from '../../utils/url';
 
@@ -12,10 +24,12 @@ import { useModel } from 'umi';
 import { useRequest, useMount } from '@umijs/hooks';
 import ROUTERS from '../../router';
 
-const DataShow = (props) => {
+const DataShow = props => {
   const { userInfo, config } = useModel('useAuthModel');
   // 所有表信息
   const [allRouter, setAllRouter] = useState([]);
+  // 所有表别名信息
+  const [remarks, setRemarks] = useState([]);
   // 当前选中的表名
   const [selectRouter, setSelectRouter] = useState(null);
   // 当前选中的表信息
@@ -37,43 +51,52 @@ const DataShow = (props) => {
   const [editRow, setEditRow] = useState({});
 
   // 执行操作之后刷新
-  const taskSuccess = (d) => {
+  const taskSuccess = d => {
     if (!d?.status) {
       fetchDataList(selectRouter);
     }
   };
   // 获取表信息
   const { run: fetchDataInfo } = useRequest(req.getRouterFields, {
-    manual: true, onSuccess: (d) => {
+    manual: true,
+    onSuccess: d => {
       if (!d?.status) {
         setRouterFields(d);
       }
     },
   });
   // 获取表数据
-  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(req.getRouterData, {
-    manual: true, onSuccess: (d) => {
-      if (!d?.status) {
-        setRouterData(d);
-      }
+  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(
+    req.getRouterData,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          setRouterData(d);
+        }
+      },
     },
-  });
+  );
 
   // 删除选中行
   const { run: runDeleteRow } = useRequest(req.deleteRouterSelectData, {
-    manual: true, onSuccess: taskSuccess,
+    manual: true,
+    onSuccess: taskSuccess,
   });
 
   // 修改密码
-  const { run: changePassword, loading: changePasswordLoading } = useRequest(req.changeUserPassword, {
-    manual: true,
-    onSuccess: (d) => {
-      if (!d?.status) {
-        fetchDataList(selectRouter);
-        setEditModalShow(false);
-      }
+  const { run: changePassword, loading: changePasswordLoading } = useRequest(
+    req.changeUserPassword,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          fetchDataList(selectRouter);
+          setEditModalShow(false);
+        }
+      },
     },
-  });
+  );
 
   // 修改权限
   const { run: changeRoles } = useRequest(req.changeUserRoles, {
@@ -85,8 +108,11 @@ const DataShow = (props) => {
     if (config) {
       const a = async () => {
         const allTable = await req.getRouterLists();
-        setAllRouter(allTable);
-        const defaultSelect = allTable[config.user_model_name];
+        const remarks = allTable?.remarks;
+        const tables = allTable?.tables;
+        setAllRouter(tables);
+        setRemarks(remarks);
+        const defaultSelect = tables[config.user_model_name];
         setSelectRouter(defaultSelect);
         // 获取表的信息
         fetchDataInfo(defaultSelect);
@@ -100,13 +126,28 @@ const DataShow = (props) => {
   const autoincrName = routerFields?.autoincr || 'id';
 
   let columns = [];
-  if (routerData.data.length) {
+  if (routerData?.data?.length) {
     columns.push({
       title: autoincrName,
       dataIndex: autoincrName.toLowerCase(),
       key: 'tid',
       width: 80,
     });
+    columns.push({
+      title: '操作',
+      dataIndex: 'operating',
+      key: 'toperating',
+      render: (text, row) => {
+        return (
+          <span>
+            <Button onClick={e => onEdit(row)} type={'link'}>
+              修改密码
+            </Button>
+          </span>
+        );
+      },
+    });
+
     routerFields?.fields?.map((d, i) => {
       if (d.map_name !== autoincrName.toLowerCase()) {
         let w = 200;
@@ -114,7 +155,7 @@ const DataShow = (props) => {
           w = 100;
         }
         columns.push({
-          title: d.map_name,
+          title: d?.comment_tags || d?.map_name,
           dataIndex: d.map_name,
           key: `t${d.map_name}`,
           width: w,
@@ -131,33 +172,18 @@ const DataShow = (props) => {
     });
     const tagsData = ['guest', 'staff', 'admin'];
     columns.push({
-      title: "roles",
-      dataIndex: "roles",
+      title: '权限组',
+      dataIndex: 'roles',
       render: (text, record) => {
-        return (
-          tagsData.map(tag => (
-            <CheckableTag
-              key={tag}
-              checked={text.indexOf(tag) > -1}
-              onChange={checked => roleTagChange(tag, checked, record)}
-            >
-              {tag}
-            </CheckableTag>
-          ))
-        );
-      },
-    });
-
-    columns.push({
-      title: 'operating',
-      dataIndex: 'operating',
-      key: 'toperating',
-      render: (text, row) => {
-        return (
-          <span>
-            <Button onClick={(e) => onEdit(row)} type={'link'}>修改密码</Button>
-          </span>
-        );
+        return tagsData.map(tag => (
+          <CheckableTag
+            key={tag}
+            checked={text.indexOf(tag) > -1}
+            onChange={checked => roleTagChange(tag, checked, record)}
+          >
+            {tag}
+          </CheckableTag>
+        ));
       },
     });
   }
@@ -184,7 +210,7 @@ const DataShow = (props) => {
     runDeleteRow(selectRouter, { ids: selectRow.join(',') });
   };
 
-  const onEdit = (row) => {
+  const onEdit = row => {
     setEditRow(row);
     setEditModalShow(true);
   };
@@ -212,32 +238,39 @@ const DataShow = (props) => {
           okText="确定"
           cancelText="取消"
         >
-          <Button disabled={!selectRow.length}>删除选中的{selectRow.length}条数据</Button>
+          <Button disabled={!selectRow.length}>
+            删除选中的{selectRow.length}条数据
+          </Button>
         </Popconfirm>
-
       </Col>
       <Col>
-        <Button onClick={(e) => fetchDataList(selectRouter)}>刷新</Button>
+        <Button onClick={e => fetchDataList(selectRouter)}>刷新</Button>
       </Col>
       <Col>
-        <Button target={'_blank'} href={ROUTERS.reg} type={'link'}>新增用户</Button>
+        <Button target={'_blank'} href={ROUTERS.reg} type={'link'}>
+          新增用户
+        </Button>
       </Col>
     </Row>
   );
 
   const passwordFields = {
-    fields: [{
-      map_name: 'password',
-      name: 'Password',
-      sp_tags: '',
-      types: 'string',
-      validate_tags: '',
-      xorm_tags: 'varchar(100) notnull',
-    }],
+    fields: [
+      {
+        name: 'Password',
+        map_name: 'password',
+        types: 'string',
+        sp_tags: '',
+        validate_tags: '',
+        comment_tags: '',
+        attr_tags: '',
+        xorm_tags: 'varchar(100) notnull',
+      },
+    ],
   };
 
   return (
-    <PageHeaderWrapper content="数据面板页">
+    <PageHeaderWrapper content={remarks[config?.user_model_name]}>
       <Card>
         <div>
           {operations}
@@ -245,34 +278,32 @@ const DataShow = (props) => {
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowKey={autoincrName.toLowerCase()}
             rowSelection={rowSelection}
-            dataSource={routerData.data.filter((d) => d[autoincrName] !== userInfo?.userid)}
+            dataSource={routerData?.data.filter(
+              d => d[autoincrName] !== userInfo?.userid,
+            )}
             columns={columns}
             pagination={{
               hideOnSinglePage: true,
-              pageSize: routerData.page_size,
-              total: routerData.all,
-              current: routerData.page,
+              pageSize: routerData?.page_size,
+              total: routerData?.all,
+              current: routerData?.page,
               onChange: pageChange,
             }}
             size={'small'}
             loading={fetchDataLoading}
           />
         </div>
-
       </Card>
 
-      {
-        editModalShow ? <CollectionCreateForm
+      {editModalShow ? (
+        <CollectionCreateForm
           fieldsList={passwordFields}
           initValues={{}}
           loading={changePasswordLoading}
           onCreate={onCreate}
           onCancel={() => setEditModalShow(false)}
-
-        /> : null
-      }
-
-
+        />
+      ) : null}
     </PageHeaderWrapper>
   );
 };
