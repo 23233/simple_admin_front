@@ -243,9 +243,9 @@ const DataShow = (props) => {
 
     routerFields?.fields?.map((d, i) => {
       if (d.map_name !== autoincrName.toLowerCase()) {
-        let w = 200;
+        let w = 180;
         if (d.types.includes('int')) {
-          w = 100;
+          w = 80;
         }
         const sp_tags = Tools.parseTags(d.sp_tags);
         const attrs_tags = Tools.parseTags(d.attr_tags);
@@ -273,13 +273,13 @@ const DataShow = (props) => {
                   }
                 </Space>
                 :
-                <Paragraph ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
+                <Paragraph ellipsis style={{ width: w, marginBottom: 0 }}>
                   <Tooltip placement="topLeft" title={text}>
                     <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + text}>{text}</Link>
                   </Tooltip>
                 </Paragraph>
 
-                : <div style={{ maxWidth: w }}>
+                : <div style={{ width: w }}>
                   <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 0 }}>
                     <Tooltip placement="topLeft" title={text} trigger={'click'}
                              destroyTooltipOnHide={{ keepParent: false }} overlayClassName="tooltip-wrap">
