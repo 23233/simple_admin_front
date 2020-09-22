@@ -31,7 +31,6 @@ const codeMessage = {
  */
 
 const errorHandler = async (error: any) => {
-
   const { response } = error;
   if (response && response.status) {
     // @ts-ignore
@@ -49,9 +48,7 @@ const errorHandler = async (error: any) => {
           content = res[Object.keys(res)[0]].toString();
         }
       }
-    } catch (e) {
-
-    }
+    } catch (e) {}
     const { status, url } = response;
     // 未登录或登录状态过期
     if (response.status === 401) {
@@ -88,7 +85,6 @@ const request = extend({
 });
 
 request.interceptors.request.use((url, options) => {
-
   let token = localStorage.getItem('simple_token');
   if (token) {
     if (token.startsWith('"')) {
@@ -97,12 +93,10 @@ request.interceptors.request.use((url, options) => {
     // @ts-ignore
     options.headers.Authorization = `Bearer ${token}`;
   }
-  return (
-    {
-      url: url,
-      options: options,
-    }
-  );
+  return {
+    url: url,
+    options: options,
+  };
 });
 export const prefix = process.env.NODE_ENV === 'production' ? '/' : '/api/';
 

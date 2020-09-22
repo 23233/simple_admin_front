@@ -1,10 +1,22 @@
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
-import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography, Space, Input } from 'antd';
+import {
+  Card,
+  Button,
+  Table,
+  Popconfirm,
+  Row,
+  Col,
+  message,
+  Radio,
+  Tooltip,
+  Typography,
+  Space,
+  Input,
+} from 'antd';
 import { history, Link } from 'umi';
 import req from '../../utils/url';
 import './index.less';
-
 
 import CollectionCreateForm from './dataForm';
 import { useModel } from 'umi';
@@ -15,8 +27,7 @@ import Tools from '../../utils/tools';
 const { Paragraph } = Typography;
 const { Search } = Input;
 
-
-const DataShow = (props) => {
+const DataShow = props => {
   const { userInfo, config } = useModel('useAuthModel');
   // 所有表信息
   const [allRouter, setAllRouter] = useState([]);
@@ -55,37 +66,47 @@ const DataShow = (props) => {
   const [searchInput, setSearchInput] = useState(undefined);
 
   // 搜索
-  const { run: searchText, data: searchData, loading: searchLoading } = useRequest(req.searchRouterData, {
+  const {
+    run: searchText,
+    data: searchData,
+    loading: searchLoading,
+  } = useRequest(req.searchRouterData, {
     manual: true,
     debounceInterval: 500,
   });
 
   const params = props.location.query;
   // 执行操作之后刷新
-  const taskSuccess = (d) => {
+  const taskSuccess = d => {
     if (!d?.status) {
       fetchDataList(selectRouter, { page: nowPage });
     }
   };
   // 获取表信息
   const { run: fetchDataInfo } = useRequest(req.getRouterFields, {
-    manual: true, onSuccess: (d) => {
+    manual: true,
+    onSuccess: d => {
       if (!d?.status) {
         setRouterFields(d);
       }
     },
   });
   // 获取表数据
-  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(req.getRouterData, {
-    manual: true, onSuccess: (d) => {
-      if (!d?.status) {
-        setRouterData(d);
-      }
+  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(
+    req.getRouterData,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          setRouterData(d);
+        }
+      },
     },
-  });
+  );
   // 获取action信息
   const { run: fetchAction } = useRequest(req.getRouterActions, {
-    manual: true, onSuccess: (d) => {
+    manual: true,
+    onSuccess: d => {
       if (!d?.status) {
         setActionList(d);
       }
@@ -94,12 +115,13 @@ const DataShow = (props) => {
 
   // 删除选中行
   const { run: runDeleteRow } = useRequest(req.deleteRouterSelectData, {
-    manual: true, onSuccess: taskSuccess,
+    manual: true,
+    onSuccess: taskSuccess,
   });
   // 新增数据
   const { run: addRow, loading: addRowLoading } = useRequest(req.addData, {
     manual: true,
-    onSuccess: (d) => {
+    onSuccess: d => {
       if (!d?.status) {
         fetchDataList(selectRouter);
         setEditModalShow(false);
@@ -107,27 +129,32 @@ const DataShow = (props) => {
     },
   });
   // 修改数据
-  const { run: updateRow, loading: updateRowLoading } = useRequest(req.updateData, {
-    manual: true,
-    onSuccess: (d) => {
-      if (!d?.status) {
-        fetchDataList(selectRouter, { page: nowPage });
-        setEditModalShow(false);
-      }
+  const { run: updateRow, loading: updateRowLoading } = useRequest(
+    req.updateData,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          fetchDataList(selectRouter, { page: nowPage });
+          setEditModalShow(false);
+        }
+      },
     },
-  });
+  );
 
   // 自定义action提交
-  const { run: actionSubmit, loading: actionLoading } = useRequest(req.runActions, {
-    manual: true,
-    onSuccess: (d) => {
-      if (!d?.status) {
-        fetchDataList(selectRouter, { page: nowPage });
-        setActionModalShow(false);
-      }
+  const { run: actionSubmit, loading: actionLoading } = useRequest(
+    req.runActions,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          fetchDataList(selectRouter, { page: nowPage });
+          setActionModalShow(false);
+        }
+      },
     },
-  });
-
+  );
 
   // 获取所有路由列表
   useMount(async () => {
@@ -136,7 +163,9 @@ const DataShow = (props) => {
     const tables = allTable?.tables;
     setAllRouter(tables);
     setRemarks(remarks);
-    const defaultSelect = params?.tab ? tables[params?.tab] : Object.keys(tables).filter((d) => d !== config?.user_model_name)[0];
+    const defaultSelect = params?.tab
+      ? tables[params?.tab]
+      : Object.keys(tables).filter(d => d !== config?.user_model_name)[0];
     setSelectRouter(defaultSelect);
     // 获取表的信息
     fetchDataInfo(defaultSelect);
@@ -145,7 +174,6 @@ const DataShow = (props) => {
     // 获取自定义action信息
     fetchAction(defaultSelect);
   });
-
 
   useEffect(() => {
     if (params.tab) {
@@ -166,15 +194,17 @@ const DataShow = (props) => {
     }
   }, [params]);
 
-  const tabChange = (tab) => {
+  const tabChange = tab => {
     setSearchInput(undefined);
     history.push(props.match.url + '?tab=' + tab);
   };
 
   // 搜索切换
-  const searchChange = (value) => {
+  const searchChange = value => {
     if (value) {
-      history.push(props.match.url + '?tab=' + selectRouter + '&search=' + value);
+      history.push(
+        props.match.url + '?tab=' + selectRouter + '&search=' + value,
+      );
     } else {
       tabChange(selectRouter);
     }
@@ -184,15 +214,13 @@ const DataShow = (props) => {
 
   let columns = [];
 
-
   // 行标签解析
   const colTagParse = (tag, text, attr_tag) => {
     let attrs = {};
     if (attr_tag?.value) {
       try {
         attrs = JSON.parse(attr_tag?.value);
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     if (!text) {
       return '';
@@ -200,7 +228,7 @@ const DataShow = (props) => {
 
     switch (tag) {
       case 'img':
-        return <img src={text} alt="图片" width={80} {...attrs}/>;
+        return <img src={text} alt="图片" width={80} {...attrs} />;
 
       default:
         return text.slice(0, 50);
@@ -213,7 +241,7 @@ const DataShow = (props) => {
       dataIndex: autoincrName.toLowerCase(),
       key: 'tid',
       width: 80,
-      render: (text) => {
+      render: text => {
         const url = ROUTERS.single_data + '/' + selectRouter + '/' + text;
         return <Link to={url}>{text}</Link>;
       },
@@ -226,20 +254,26 @@ const DataShow = (props) => {
       render: (text, row) => {
         return (
           <div>
-            <Button onClick={(e) => onEdit(row)} type={'link'}>修改</Button>
-            {
-              actionList.length ? actionList.map((d, i) => {
-                return (
-                  <Button key={`custom_action_${i}`} onClick={() => customAction(row, d)}
-                          type={'link'}>{d.name}</Button>
-                );
-              }) : null
-            }
+            <Button onClick={e => onEdit(row)} type={'link'}>
+              修改
+            </Button>
+            {actionList.length
+              ? actionList.map((d, i) => {
+                  return (
+                    <Button
+                      key={`custom_action_${i}`}
+                      onClick={() => customAction(row, d)}
+                      type={'link'}
+                    >
+                      {d.name}
+                    </Button>
+                  );
+                })
+              : null}
           </div>
         );
       },
     });
-
 
     routerFields?.fields?.map((d, i) => {
       if (d.map_name !== autoincrName.toLowerCase()) {
@@ -250,46 +284,69 @@ const DataShow = (props) => {
         const sp_tags = Tools.parseTags(d.sp_tags);
         const attrs_tags = Tools.parseTags(d.attr_tags);
 
-        const content = (text) => {
-          let fk = sp_tags.find((e) => e.key === 'fk');
-          let multiple = sp_tags.find((e) => e.key === 'multiple');
-          let tag = sp_tags.find((e) => e.key === 'tag');
+        const content = text => {
+          let fk = sp_tags.find(e => e.key === 'fk');
+          let multiple = sp_tags.find(e => e.key === 'multiple');
+          let tag = sp_tags.find(e => e.key === 'tag');
 
-
-          return <React.Fragment>
-            {
-              fk ? multiple ?
-                <Space>
-                  {
-                    text && text.split(',').map((t, i) => {
-                      return (
-                        <Paragraph key={`fk_${i}`} ellipsis style={{ maxWidth: w, marginBottom: 0 }}>
-                          <Tooltip placement="topLeft" title={t}>
-                            <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + t}>{t}</Link>
-                          </Tooltip>
-                        </Paragraph>
-                      );
-                    })
-                  }
-                </Space>
-                :
-                <Paragraph ellipsis style={{ width: w, marginBottom: 0 }}>
-                  <Tooltip placement="topLeft" title={text}>
-                    <Link to={ROUTERS.single_data + '/' + fk?.value + '/' + text}>{text}</Link>
-                  </Tooltip>
-                </Paragraph>
-
-                : <div style={{ width: w }}>
+          return (
+            <React.Fragment>
+              {fk ? (
+                multiple ? (
+                  <Space>
+                    {text &&
+                      text.split(',').map((t, i) => {
+                        return (
+                          <Paragraph
+                            key={`fk_${i}`}
+                            ellipsis
+                            style={{ maxWidth: w, marginBottom: 0 }}
+                          >
+                            <Tooltip placement="topLeft" title={t}>
+                              <Link
+                                to={
+                                  ROUTERS.single_data +
+                                  '/' +
+                                  fk?.value +
+                                  '/' +
+                                  t
+                                }
+                              >
+                                {t}
+                              </Link>
+                            </Tooltip>
+                          </Paragraph>
+                        );
+                      })}
+                  </Space>
+                ) : (
+                  <Paragraph ellipsis style={{ width: w, marginBottom: 0 }}>
+                    <Tooltip placement="topLeft" title={text}>
+                      <Link
+                        to={ROUTERS.single_data + '/' + fk?.value + '/' + text}
+                      >
+                        {text}
+                      </Link>
+                    </Tooltip>
+                  </Paragraph>
+                )
+              ) : (
+                <div style={{ width: w }}>
                   <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 0 }}>
-                    <Tooltip placement="topLeft" title={text} trigger={'click'}
-                             destroyTooltipOnHide={{ keepParent: false }} overlayClassName="tooltip-wrap">
+                    <Tooltip
+                      placement="topLeft"
+                      title={text}
+                      trigger={'click'}
+                      destroyTooltipOnHide={{ keepParent: false }}
+                      overlayClassName="tooltip-wrap"
+                    >
                       {colTagParse(tag?.value, text, attrs_tags)}
                     </Tooltip>
                   </Paragraph>
                 </div>
-            }
-
-          </React.Fragment>;
+              )}
+            </React.Fragment>
+          );
         };
         columns.push({
           title: d?.comment_tags || d?.map_name,
@@ -324,7 +381,7 @@ const DataShow = (props) => {
     runDeleteRow(selectRouter, { ids: selectRow.join(',') });
   };
 
-  const onEdit = (row) => {
+  const onEdit = row => {
     setEditRow(row);
     setEditModalShow(true);
   };
@@ -337,13 +394,12 @@ const DataShow = (props) => {
   const onCreate = values => {
     console.log('Received values of form: ', values);
 
-    Object.keys(values).map((d) => {
+    Object.keys(values).map(d => {
       const v = values[d];
       if (Array.isArray(v)) {
         values[d] = v.join();
       }
     });
-
 
     // 判断是新增还是变更
     const selectKeys = Object.keys(editRow);
@@ -369,7 +425,6 @@ const DataShow = (props) => {
       }
     }
 
-
     // 修改
     if (selectKeys.length) {
       updateRow(selectRouter, editRow.id, { ...editRow, ...values });
@@ -377,14 +432,11 @@ const DataShow = (props) => {
     }
     // 新增
     addRow(selectRouter, values);
-
   };
 
   const customActionCreate = values => {
     actionSubmit(selectAction.path, values, selectAction.methods);
-
   };
-
 
   const rowSelection = {
     selectedRowKeys: selectRow,
@@ -401,21 +453,31 @@ const DataShow = (props) => {
           okText="确定"
           cancelText="取消"
         >
-          <Button disabled={!selectRow.length}>删除选中的{selectRow.length}条数据</Button>
+          <Button disabled={!selectRow.length}>
+            删除选中的{selectRow.length}条数据
+          </Button>
         </Popconfirm>
-
       </Col>
       <Col>
-        <Button type={'default'} onClick={(e) => onAdd()}>新增数据</Button>
+        <Button type={'default'} onClick={e => onAdd()}>
+          新增数据
+        </Button>
       </Col>
       <Col>
-        <Button onClick={(e) => fetchDataList(selectRouter, { page: nowPage })}>刷新</Button>
+        <Button onClick={e => fetchDataList(selectRouter, { page: nowPage })}>
+          刷新
+        </Button>
       </Col>
       <Col>
-        <Search placeholder="请输入搜索内容" onSearch={searchChange} enterButton allowClear
-                value={searchInput}
-                onChange={(e) => setSearchInput(e.target.value)}
-                loading={searchLoading}/>
+        <Search
+          placeholder="请输入搜索内容"
+          onSearch={searchChange}
+          enterButton
+          allowClear
+          value={searchInput}
+          onChange={e => setSearchInput(e.target.value)}
+          loading={searchLoading}
+        />
       </Col>
     </Row>
   );
@@ -423,20 +485,22 @@ const DataShow = (props) => {
   // 对表列表进行自动分组 根据下划线
   const intelligentGroup = () => {
     let group = [];
-    const normalTables = Object.keys(allRouter).filter((d) => d !== config?.user_model_name);
+    const normalTables = Object.keys(allRouter).filter(
+      d => d !== config?.user_model_name,
+    );
     const oldData = JSON.parse(JSON.stringify(normalTables));
     normalTables.map((k, i) => {
       const prefix = k.split('_')[0];
       let g = [];
-      Object.keys(oldData).map((d) => {
+      Object.keys(oldData).map(d => {
         if (oldData[d].startsWith(prefix)) {
           g.push(oldData[d]);
           delete oldData[d];
         }
       });
       // 如果存在
-      if (group.some((d) => d.group === prefix)) {
-        group.map((b) => {
+      if (group.some(d => d.group === prefix)) {
+        group.map(b => {
           if (b.group === prefix) {
             b.children = [...b.children, ...g];
           }
@@ -447,7 +511,6 @@ const DataShow = (props) => {
           children: g,
         });
       }
-
     });
     return group;
   };
@@ -455,33 +518,37 @@ const DataShow = (props) => {
   const group = intelligentGroup();
 
   return (
-    <PageHeaderWrapper content={`${remarks[selectRouter]} ${params?.search ? '搜索' + params.search : ''}`}>
+    <PageHeaderWrapper
+      content={`${remarks[selectRouter]} ${
+        params?.search ? '搜索' + params.search : ''
+      }`}
+    >
       <Card>
         <div style={{ margin: '0 0 15px 0' }}>
-          {
-            group.map((d, i) => {
-              return (
-                <div key={`p_${i}`}>
-                  <Radio.Group name={'table_select_radio'} value={selectRouter}
-                               onChange={(ev) => tabChange(ev.target.value)}
-                               buttonStyle="solid">
-                    {
-                      Object.keys(d.children).map((k) => {
-                        let v = d.children[k];
-                        if (v !== config?.user_model_name) {
-                          return <Radio value={v} key={v}>{remarks[v]}</Radio>;
-                        }
-                      })
+          {group.map((d, i) => {
+            return (
+              <div key={`p_${i}`}>
+                <Radio.Group
+                  name={'table_select_radio'}
+                  value={selectRouter}
+                  onChange={ev => tabChange(ev.target.value)}
+                  buttonStyle="solid"
+                >
+                  {Object.keys(d.children).map(k => {
+                    let v = d.children[k];
+                    if (v !== config?.user_model_name) {
+                      return (
+                        <Radio value={v} key={v}>
+                          {remarks[v]}
+                        </Radio>
+                      );
                     }
-                  </Radio.Group>
-                </div>
-              );
-            })
-          }
-
-
+                  })}
+                </Radio.Group>
+              </div>
+            );
+          })}
         </div>
-
 
         <div>
           {operations}
@@ -491,47 +558,46 @@ const DataShow = (props) => {
             rowSelection={rowSelection}
             dataSource={params?.search ? searchData : routerData?.data}
             columns={columns}
-            pagination={params?.search ? null : {
-              hideOnSinglePage: true,
-              pageSize: routerData?.page_size,
-              showSizeChanger: false,
-              total: routerData?.all,
-              showTotal: (total, range) => {
-                return (`共有 ${total} 条数据`);
-              },
-              current: routerData?.page,
-              onChange: pageChange,
-            }}
+            pagination={
+              params?.search
+                ? null
+                : {
+                    hideOnSinglePage: true,
+                    pageSize: routerData?.page_size,
+                    showSizeChanger: false,
+                    total: routerData?.all,
+                    showTotal: (total, range) => {
+                      return `共有 ${total} 条数据`;
+                    },
+                    current: routerData?.page,
+                    onChange: pageChange,
+                  }
+            }
             size={'small'}
             loading={fetchDataLoading || searchLoading}
           />
         </div>
-
       </Card>
 
-      {
-        editModalShow ? <CollectionCreateForm
+      {editModalShow ? (
+        <CollectionCreateForm
           fieldsList={routerFields}
           initValues={editRow}
           loading={addRowLoading || updateRowLoading}
           onCreate={onCreate}
           onCancel={() => setEditModalShow(false)}
-
-        /> : null
-      }
-      {
-        actionModalShow ? <CollectionCreateForm
+        />
+      ) : null}
+      {actionModalShow ? (
+        <CollectionCreateForm
           fieldsList={selectAction}
           initValues={editRow}
           isAction={true}
           loading={actionLoading}
           onCreate={customActionCreate}
           onCancel={() => setActionModalShow(false)}
-
-        /> : null
-      }
-
-
+        />
+      ) : null}
     </PageHeaderWrapper>
   );
 };

@@ -1,6 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
-import { Card, Button, Table, Popconfirm, Row, Col, message, Radio, Tooltip, Typography, Tag } from 'antd';
+import {
+  Card,
+  Button,
+  Table,
+  Popconfirm,
+  Row,
+  Col,
+  message,
+  Radio,
+  Tooltip,
+  Typography,
+  Tag,
+} from 'antd';
 import { history } from 'umi';
 import req from '../../utils/url';
 
@@ -12,7 +24,7 @@ import { useModel } from 'umi';
 import { useRequest, useMount } from '@umijs/hooks';
 import ROUTERS from '../../router';
 
-const DataShow = (props) => {
+const DataShow = props => {
   const { userInfo, config } = useModel('useAuthModel');
   // 所有表信息
   const [allRouter, setAllRouter] = useState([]);
@@ -39,43 +51,52 @@ const DataShow = (props) => {
   const [editRow, setEditRow] = useState({});
 
   // 执行操作之后刷新
-  const taskSuccess = (d) => {
+  const taskSuccess = d => {
     if (!d?.status) {
       fetchDataList(selectRouter);
     }
   };
   // 获取表信息
   const { run: fetchDataInfo } = useRequest(req.getRouterFields, {
-    manual: true, onSuccess: (d) => {
+    manual: true,
+    onSuccess: d => {
       if (!d?.status) {
         setRouterFields(d);
       }
     },
   });
   // 获取表数据
-  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(req.getRouterData, {
-    manual: true, onSuccess: (d) => {
-      if (!d?.status) {
-        setRouterData(d);
-      }
+  const { run: fetchDataList, loading: fetchDataLoading } = useRequest(
+    req.getRouterData,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          setRouterData(d);
+        }
+      },
     },
-  });
+  );
 
   // 删除选中行
   const { run: runDeleteRow } = useRequest(req.deleteRouterSelectData, {
-    manual: true, onSuccess: taskSuccess,
+    manual: true,
+    onSuccess: taskSuccess,
   });
 
   // 修改密码
-  const { run: changePassword, loading: changePasswordLoading } = useRequest(req.changeUserPassword, {
-    manual: true,
-    onSuccess: (d) => {
-      if (!d?.status) {
-        fetchDataList(selectRouter);
-        setEditModalShow(false);
-      }
+  const { run: changePassword, loading: changePasswordLoading } = useRequest(
+    req.changeUserPassword,
+    {
+      manual: true,
+      onSuccess: d => {
+        if (!d?.status) {
+          fetchDataList(selectRouter);
+          setEditModalShow(false);
+        }
+      },
     },
-  });
+  );
 
   // 修改权限
   const { run: changeRoles } = useRequest(req.changeUserRoles, {
@@ -119,7 +140,9 @@ const DataShow = (props) => {
       render: (text, row) => {
         return (
           <span>
-            <Button onClick={(e) => onEdit(row)} type={'link'}>修改密码</Button>
+            <Button onClick={e => onEdit(row)} type={'link'}>
+              修改密码
+            </Button>
           </span>
         );
       },
@@ -152,20 +175,17 @@ const DataShow = (props) => {
       title: '权限组',
       dataIndex: 'roles',
       render: (text, record) => {
-        return (
-          tagsData.map(tag => (
-            <CheckableTag
-              key={tag}
-              checked={text.indexOf(tag) > -1}
-              onChange={checked => roleTagChange(tag, checked, record)}
-            >
-              {tag}
-            </CheckableTag>
-          ))
-        );
+        return tagsData.map(tag => (
+          <CheckableTag
+            key={tag}
+            checked={text.indexOf(tag) > -1}
+            onChange={checked => roleTagChange(tag, checked, record)}
+          >
+            {tag}
+          </CheckableTag>
+        ));
       },
     });
-
   }
 
   // 变更权限
@@ -190,7 +210,7 @@ const DataShow = (props) => {
     runDeleteRow(selectRouter, { ids: selectRow.join(',') });
   };
 
-  const onEdit = (row) => {
+  const onEdit = row => {
     setEditRow(row);
     setEditModalShow(true);
   };
@@ -218,30 +238,35 @@ const DataShow = (props) => {
           okText="确定"
           cancelText="取消"
         >
-          <Button disabled={!selectRow.length}>删除选中的{selectRow.length}条数据</Button>
+          <Button disabled={!selectRow.length}>
+            删除选中的{selectRow.length}条数据
+          </Button>
         </Popconfirm>
-
       </Col>
       <Col>
-        <Button onClick={(e) => fetchDataList(selectRouter)}>刷新</Button>
+        <Button onClick={e => fetchDataList(selectRouter)}>刷新</Button>
       </Col>
       <Col>
-        <Button target={'_blank'} href={ROUTERS.reg} type={'link'}>新增用户</Button>
+        <Button target={'_blank'} href={ROUTERS.reg} type={'link'}>
+          新增用户
+        </Button>
       </Col>
     </Row>
   );
 
   const passwordFields = {
-    fields: [{
-      name: 'Password',
-      map_name: 'password',
-      types: 'string',
-      sp_tags: '',
-      validate_tags: '',
-      comment_tags: '',
-      attr_tags: '',
-      xorm_tags: 'varchar(100) notnull',
-    }],
+    fields: [
+      {
+        name: 'Password',
+        map_name: 'password',
+        types: 'string',
+        sp_tags: '',
+        validate_tags: '',
+        comment_tags: '',
+        attr_tags: '',
+        xorm_tags: 'varchar(100) notnull',
+      },
+    ],
   };
 
   return (
@@ -253,7 +278,9 @@ const DataShow = (props) => {
             scroll={{ x: true, scrollToFirstRowOnChange: true }}
             rowKey={autoincrName.toLowerCase()}
             rowSelection={rowSelection}
-            dataSource={routerData?.data.filter((d) => d[autoincrName] !== userInfo?.userid)}
+            dataSource={routerData?.data.filter(
+              d => d[autoincrName] !== userInfo?.userid,
+            )}
             columns={columns}
             pagination={{
               hideOnSinglePage: true,
@@ -266,21 +293,17 @@ const DataShow = (props) => {
             loading={fetchDataLoading}
           />
         </div>
-
       </Card>
 
-      {
-        editModalShow ? <CollectionCreateForm
+      {editModalShow ? (
+        <CollectionCreateForm
           fieldsList={passwordFields}
           initValues={{}}
           loading={changePasswordLoading}
           onCreate={onCreate}
           onCancel={() => setEditModalShow(false)}
-
-        /> : null
-      }
-
-
+        />
+      ) : null}
     </PageHeaderWrapper>
   );
 };
