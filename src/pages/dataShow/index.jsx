@@ -15,6 +15,7 @@ import {
   Select,
   Input,
 } from 'antd';
+import Highlighter from 'react-highlight-words';
 import { history, Link, useModel } from 'umi';
 import req from '../../utils/url';
 import './index.less';
@@ -205,6 +206,7 @@ const DataShow = props => {
       fetchDataInfo(params.tab);
       if (params.search) {
         const selectCols = params.cols.split(',');
+        setSearchInput(params.search);
         searchText(params.tab, params.search, selectCols);
         setSearchSelectCols(selectCols);
       } else {
@@ -245,7 +247,7 @@ const DataShow = props => {
   let columns = [];
 
   // 行标签解析
-  const colTagParse = (tag, text, attr_tag) => {
+  const colTagParse = (tag, text, attr_tag, map_name) => {
     let attrs = {};
     if (attr_tag?.value) {
       try {
@@ -262,7 +264,18 @@ const DataShow = props => {
         return <img src={text} alt="图片" width={80} {...attrs} />;
 
       default:
-        return text.slice(0, 50);
+        const t = text.slice(0, 50);
+        if (searchInput && searchSelectCols.includes(map_name)) {
+          return (
+            <Highlighter
+              highlightClassName="highlightClass"
+              searchWords={[searchInput]}
+              autoEscape={true}
+              textToHighlight={t}
+            />
+          );
+        }
+        return t;
     }
   };
 
@@ -356,17 +369,15 @@ const DataShow = props => {
                 )
               ) : (
                 <div style={{ width: w }}>
-                  <Paragraph ellipsis={{ rows: 2 }} style={{ marginBottom: 0 }}>
-                    <Tooltip
-                      placement="topLeft"
-                      title={text}
-                      trigger={'click'}
-                      destroyTooltipOnHide={{ keepParent: false }}
-                      overlayClassName="tooltip-wrap"
-                    >
-                      {colTagParse(tag?.value, text, attrs_tags)}
-                    </Tooltip>
-                  </Paragraph>
+                  <Tooltip
+                    placement="topLeft"
+                    title={text}
+                    trigger={'click'}
+                    destroyTooltipOnHide={{ keepParent: false }}
+                    overlayClassName="tooltip-wrap"
+                  >
+                    {colTagParse(tag?.value, text, attrs_tags, d.map_name)}
+                  </Tooltip>
                 </div>
               )}
             </React.Fragment>
