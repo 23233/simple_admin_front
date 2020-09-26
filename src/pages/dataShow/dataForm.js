@@ -7,26 +7,26 @@ import {
   Input,
   Radio,
   InputNumber,
+  Row, Col,
   Switch,
   TimePicker,
   DatePicker,
   Select,
   Spin,
 } from 'antd';
-import Tools from '../../utils/tools';
-import { useRequest } from '@umijs/hooks';
+import { useMount, useRequest } from '@umijs/hooks';
 import req from '../../utils/url';
 
 const { Option } = Select;
 
 const CollectionCreateForm = ({
-  onCreate,
-  onCancel,
-  fieldsList,
-  initValues,
-  loading,
-  isAction,
-}) => {
+                                onCreate,
+                                onCancel,
+                                fieldsList,
+                                initValues,
+                                loading,
+                                isAction,
+                              }) => {
   const [form] = Form.useForm();
 
   const {
@@ -66,11 +66,10 @@ const CollectionCreateForm = ({
         initialValues[d.map_name] = initValues[d.map_name] || 0;
       }
       // 再判断类型
-      const sp_tags = Tools.parseTags(d.sp_tags);
-      if (sp_tags && sp_tags.length) {
+      if (d?.sp_tags_list.length) {
         // 先判断是否有外键
-        let fk = sp_tags.find(e => e.key === 'fk');
-        let multiple = sp_tags.find(e => e.key === 'multiple');
+        let fk = d?.sp_tags_list.find(e => e.key === 'fk');
+        let multiple = d?.sp_tags_list.find(e => e.key === 'multiple');
         if (fk && multiple) {
           initialValues[d.map_name] = initValues[d.map_name]?.split(',') || [];
         }
@@ -80,17 +79,16 @@ const CollectionCreateForm = ({
     if (initValues) {
       // 标签解析
       fieldsList.fields.map((d, i) => {
-        if (d.sp_tags) {
+        if (d?.sp_tags_list.length) {
           // 解析出数据
-          const tags = Tools.parseTags(d.sp_tags);
-          tags.map(t => {
+          d?.sp_tags_list.map(t => {
             switch (t.key) {
               // 数据关联
               case 'lineTo':
                 initialValues[d.map_name] = initValues[t.value];
                 break;
               case 'fk':
-                let multiple = tags.find(e => e.key === 'multiple');
+                let multiple = d.sp_tags_list.find(e => e.key === 'multiple');
                 if (multiple) {
                   initialValues[d.map_name] = initValues[t.value].split(',');
                 }
@@ -104,45 +102,87 @@ const CollectionCreateForm = ({
     }
   }
 
-  console.log('initialValues', initialValues, fieldsList);
+  // console.log('initialValues', initialValues, fieldsList);
+
+
 
   const TypeToElement = k => {
     // console.log('type to element', k);
+    let required = false;
+    if (
+      k.xorm_tags.split(' ').includes('notnull') ||
+      k.xorm_tags.split(' ').includes('not null')
+    ) {
+      required = true;
+    }
+    const valueProp = ['bool'].includes(k.types) ? 'checked' : 'value';
     const t = k.types;
     // 先匹配类型
-    const sp_tags = Tools.parseTags(k.sp_tags);
-    if (sp_tags && sp_tags.length) {
+    if (k.sp_tags_list.length) {
       // 先判断是否有外键
-      let fk = sp_tags.find(e => e.key === 'fk');
-      let multiple = sp_tags.find(e => e.key === 'multiple');
+      let fk = k.sp_tags_list.find(e => e.key === 'fk');
+      let multiple = k.sp_tags_list.find(e => e.key === 'multiple');
       if (fk) {
         return (
-          <Select
-            showSearch
-            mode={multiple && 'multiple'}
-            showArrow={false}
-            filterOption={false}
-            defaultActiveFirstOption={false}
-            onFocus={() => searchText(fk.value, null)}
-            onSearch={value => searchText(fk.value, value)}
-            notFoundContent={searchLoading ? <Spin size="small" /> : null}
-            placeholder="请输入筛选条件"
-            optionLabelProp={'id'}
-            allowClear
-          >
-            {searchData &&
-              searchData.length &&
-              searchData.map((d, i) => {
-                return (
-                  <Option key={d.id} value={d.id}>
-                    {JSON.stringify(d)}
-                  </Option>
-                );
-              })}
-          </Select>
+          <Form.Item label={k?.comment_tags || k.map_name}>
+            <Row>
+              <Col span={8}>
+                <Select style={{ width: '100%' }}
+                        mode="multiple"
+                        onChange={(value) => k.searchCols = value}
+                        placeholder="请选择搜索列">
+                  {
+                    k.routerInfo.map((d, i) => {
+                      return (
+                        <Option key={`cols_modal_${i}`} value={d.map_name}>{d.comment_tags || d.name}</Option>
+                      );
+                    })
+                  }
+                </Select>
+              </Col>
+              <Col span={16}>
+                <Form.Item
+                  name={k.map_name}
+                  valuePropName={valueProp}
+                  rules={[
+                    {
+                      required: required,
+                      message: 'please input data',
+                    },
+                  ]}
+                >
+                  <Select
+                    style={{ width: '100%' }}
+                    showSearch
+                    mode={multiple && 'multiple'}
+                    showArrow={false}
+                    filterOption={false}
+                    defaultActiveFirstOption={false}
+                    onSearch={value => k.searchCols && searchText(fk.value, value, k.searchCols)}
+                    notFoundContent={searchLoading ? <Spin size="small"/> : null}
+                    placeholder="请输入筛选条件"
+                    optionLabelProp={'id'}
+                    allowClear
+                  >
+                    {
+                      searchData?.map((d, i) => {
+                        return (
+                          <Option key={d.id} value={d.id}>
+                            {JSON.stringify(d)}
+                          </Option>
+                        );
+                      })}
+                  </Select>
+                </Form.Item>
+
+              </Col>
+            </Row>
+          </Form.Item>
+
         );
       }
     }
+    let ele;
     switch (t) {
       case 'float32':
       case 'float64':
@@ -157,20 +197,38 @@ const CollectionCreateForm = ({
       case 'uint32':
       case 'uint64':
       case 'time.Duration':
-        return (
-          <InputNumber
-            style={{ width: '100%' }}
-            placeholder={'please input value'}
-          />
-        );
+        ele = <InputNumber
+          style={{ width: '100%' }}
+          placeholder={'please input value'}
+        />;
+        break;
       case 'time':
       case 'time.Time':
-        return <DatePicker showTime />;
+        ele = <DatePicker showTime/>;
+        break;
       case 'bool':
-        return <Switch />;
+        ele = <Switch/>;
+        break;
       default:
-        return <Input placeholder={'please input value'} />;
+        ele = <Input placeholder={'请输入内容'}/>;
+        break;
     }
+
+    return (
+      <Form.Item
+        name={k.map_name}
+        label={k?.comment_tags || k.map_name}
+        valuePropName={valueProp}
+        rules={[
+          {
+            required: required,
+            message: '请填写数据内容',
+          },
+        ]}
+      >
+        {ele}
+      </Form.Item>
+    );
   };
 
   const MomentToFormat = values => {
@@ -252,29 +310,10 @@ const CollectionCreateForm = ({
             k.xorm_tags.split(' ').includes('created') === false &&
             k.sp_tags.split(' ').includes('autogen') === false;
           if (isPass) {
-            let required = false;
-            if (
-              k.xorm_tags.split(' ').includes('notnull') ||
-              k.xorm_tags.split(' ').includes('not null')
-            ) {
-              required = true;
-            }
-            const valueProp = ['bool'].includes(k.types) ? 'checked' : 'value';
             return (
-              <Form.Item
-                key={`form_${i}`}
-                name={k.map_name}
-                label={k?.comment_tags || k.map_name}
-                valuePropName={valueProp}
-                rules={[
-                  {
-                    required: required,
-                    message: 'please input data',
-                  },
-                ]}
-              >
+              <React.Fragment key={i}>
                 {TypeToElement(k)}
-              </Form.Item>
+              </React.Fragment>
             );
           }
         })}
