@@ -324,7 +324,7 @@ const DataShow = props => {
             <React.Fragment>
               {fk ? (
                 multiple ? (
-                  <Space>
+                  <Space style={{ width: w }}>
                     {text &&
                     text.split(',').map((t, i) => {
                       return (
@@ -345,13 +345,14 @@ const DataShow = props => {
                     })}
                   </Space>
                 ) : (
-                  <Link
-                    to={ROUTERS.single_data + '/' + fk?.value + '/' + text}
-                    title={text}
-                  >
-                    {text}
-                  </Link>
-
+                  <div style={{ width: w }}>
+                    <Link
+                      to={ROUTERS.single_data + '/' + fk?.value + '/' + text}
+                      title={text}
+                    >
+                      {text}
+                    </Link>
+                  </div>
                 )
               ) : (
                 <div style={{ width: w }}>

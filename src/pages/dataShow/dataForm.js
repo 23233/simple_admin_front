@@ -66,10 +66,10 @@ const CollectionCreateForm = ({
         initialValues[d.map_name] = initValues[d.map_name] || 0;
       }
       // 再判断类型
-      if (d?.sp_tags_list.length) {
+      if (d?.sp_tags_list?.length) {
         // 先判断是否有外键
-        let fk = d?.sp_tags_list.find(e => e.key === 'fk');
-        let multiple = d?.sp_tags_list.find(e => e.key === 'multiple');
+        let fk = d?.sp_tags_list?.find(e => e.key === 'fk');
+        let multiple = d?.sp_tags_list?.find(e => e.key === 'multiple');
         if (fk && multiple) {
           initialValues[d.map_name] = initValues[d.map_name]?.split(',') || [];
         }
@@ -79,16 +79,16 @@ const CollectionCreateForm = ({
     if (initValues) {
       // 标签解析
       fieldsList.fields.map((d, i) => {
-        if (d?.sp_tags_list.length) {
+        if (d?.sp_tags_list?.length) {
           // 解析出数据
-          d?.sp_tags_list.map(t => {
+          d?.sp_tags_list?.map(t => {
             switch (t.key) {
               // 数据关联
               case 'lineTo':
                 initialValues[d.map_name] = initValues[t.value];
                 break;
               case 'fk':
-                let multiple = d.sp_tags_list.find(e => e.key === 'multiple');
+                let multiple = d?.sp_tags_list?.find(e => e.key === 'multiple');
                 if (multiple) {
                   initialValues[d.map_name] = initValues[t.value].split(',');
                 }
@@ -118,10 +118,10 @@ const CollectionCreateForm = ({
     const valueProp = ['bool'].includes(k.types) ? 'checked' : 'value';
     const t = k.types;
     // 先匹配类型
-    if (k.sp_tags_list.length) {
+    if (k?.sp_tags_list?.length) {
       // 先判断是否有外键
-      let fk = k.sp_tags_list.find(e => e.key === 'fk');
-      let multiple = k.sp_tags_list.find(e => e.key === 'multiple');
+      let fk = k?.sp_tags_list?.find(e => e.key === 'fk');
+      let multiple = k?.sp_tags_list?.find(e => e.key === 'multiple');
       if (fk) {
         return (
           <Form.Item label={k?.comment_tags || k.map_name}>
