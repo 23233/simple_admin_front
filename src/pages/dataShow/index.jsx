@@ -337,26 +337,28 @@ const DataShow = props => {
             <React.Fragment>
               {fk ? (
                 multiple ? (
-                  <Space style={{ width: w }}>
+                  <Row style={{ width: w, overflow: 'auto' }} gutter={8}>
                     {text &&
                     text.split(',').map((t, i) => {
                       return (
-                        <Link
-                          key={`fk_${i}`}
-                          title={t}
-                          to={
-                            ROUTERS.single_data +
-                            '/' +
-                            fk?.value +
-                            '/' +
-                            t
-                          }
-                        >
-                          {t}
-                        </Link>
+                        <Col key={`fk_${i}`}>
+                          <Link
+                            title={t}
+                            to={
+                              ROUTERS.single_data +
+                              '/' +
+                              fk?.value +
+                              '/' +
+                              t
+                            }
+                          >
+                            {t}
+                          </Link>
+                        </Col>
+
                       );
                     })}
-                  </Space>
+                  </Row>
                 ) : (
                   <div style={{ width: w }}>
                     <Link
