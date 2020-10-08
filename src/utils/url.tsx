@@ -34,11 +34,12 @@ const req = {
       params: params,
     });
   },
-  searchRouterData: (routerName: string, searchText: string, cols: Array<string>) => {
+  searchRouterData: (routerName: string, searchText: string, cols: Array<string>, full_math: boolean) => {
     return Req.post(`${p}/v/${routerName}/search`, {
       data: {
         search_text: searchText,
         cols: cols,
+        full_math: full_math,
       },
     });
   },

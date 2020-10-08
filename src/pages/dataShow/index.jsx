@@ -8,6 +8,7 @@ import {
   Row,
   Col,
   message,
+  Switch,
   Radio,
   Tooltip,
   Typography,
@@ -67,6 +68,7 @@ const DataShow = props => {
   // 搜索的词
   const [searchSelectCols, setSearchSelectCols] = useState([]);
   const [searchInput, setSearchInput] = useState(undefined);
+  const [searchFullMatch, setSearchFullMatch] = useState('0');
 
   // 搜索
   const {
@@ -185,16 +187,19 @@ const DataShow = props => {
     const tables = allTable?.tables;
     setAllRouter(tables);
     setRemarks(remarks);
-    const defaultSelect = params?.tab
-      ? tables[params?.tab]
-      : Object.keys(tables).filter(d => d !== config?.user_model_name)[0];
-    setSelectRouter(defaultSelect);
-    // 获取表的信息
-    fetchDataInfo(defaultSelect);
-    // 获取表数据
-    fetchDataList(defaultSelect);
-    // 获取自定义action信息
-    fetchAction(defaultSelect);
+    if (tables?.length) {
+      const defaultSelect = params?.tab
+        ? tables[params?.tab]
+        : Object.keys(tables).filter(d => d !== config?.user_model_name)[0];
+      setSelectRouter(defaultSelect);
+      // 获取表的信息
+      fetchDataInfo(defaultSelect);
+      // 获取表数据
+      fetchDataList(defaultSelect);
+      // 获取自定义action信息
+      fetchAction(defaultSelect);
+    }
+
 
   });
 
@@ -207,8 +212,9 @@ const DataShow = props => {
       if (params.search) {
         const selectCols = params.cols.split(',');
         setSearchInput(params.search);
-        searchText(params.tab, params.search, selectCols);
+        searchText(params.tab, params.search, selectCols, !!parseInt(params.match));
         setSearchSelectCols(selectCols);
+        setSearchFullMatch(String(params.match));
       } else {
         // 获取表数据
         fetchDataList(params.tab);
@@ -231,7 +237,7 @@ const DataShow = props => {
     if (value) {
       if (searchSelectCols.length) {
         history.push(
-          props.match.url + '?tab=' + selectRouter + '&search=' + value + '&cols=' + searchSelectCols,
+          props.match.url + '?tab=' + selectRouter + '&search=' + value + '&cols=' + searchSelectCols + '&match=' + searchFullMatch,
         );
       } else {
         message.warning('请选择一个搜索列名');
@@ -279,7 +285,7 @@ const DataShow = props => {
     }
   };
 
-  if (routerData?.data?.length) {
+  if (routerData?.data?.length || params?.search) {
     columns.push({
       title: autoincrName,
       dataIndex: autoincrName.toLowerCase(),
@@ -301,7 +307,7 @@ const DataShow = props => {
             <Button onClick={e => onEdit(row)} type={'link'}>
               修改
             </Button>
-            {actionList.length
+            {actionList?.length
               ? actionList.map((d, i) => {
                 return (
                   <Button
@@ -525,15 +531,23 @@ const DataShow = props => {
             </Select>
           </Col>
           <Col>
-            <Search
-              placeholder="请输入搜索内容"
-              onSearch={searchChange}
-              enterButton
-              allowClear
-              value={searchInput}
-              onChange={e => setSearchInput(e.target.value)}
-              loading={searchLoading}
-            />
+            <Input.Group compact>
+              <Select value={searchFullMatch} onChange={(v) => setSearchFullMatch(v)}>
+                <Option value="0">左匹配</Option>
+                <Option value="1">全匹配</Option>
+              </Select>
+              <Search
+                placeholder="请输入搜索内容"
+                style={{ width: '60%' }}
+                onSearch={searchChange}
+                enterButton
+                allowClear
+                value={searchInput}
+                onChange={e => setSearchInput(e.target.value)}
+                loading={searchLoading}
+              />
+            </Input.Group>
+
           </Col>
         </Row>
 
@@ -545,6 +559,7 @@ const DataShow = props => {
   // 对表列表进行自动分组 根据下划线
   const intelligentGroup = () => {
     let group = [];
+    if (!allRouter || allRouter?.length < 1) return group;
     const normalTables = Object.keys(allRouter).filter(
       d => d !== config?.user_model_name,
     );
@@ -577,11 +592,14 @@ const DataShow = props => {
 
   const group = intelligentGroup();
 
+  const titleName = selectRouter ? `${remarks[selectRouter]} ${
+    params?.search ? '搜索' + params.search : ''
+  }` : null;
+
+
   return (
     <PageHeaderWrapper
-      content={`${remarks[selectRouter]} ${
-        params?.search ? '搜索' + params.search : ''
-      }`}
+      content={titleName}
     >
       <Card>
         <div style={{ margin: '0 0 15px 0' }}>
