@@ -8,6 +8,7 @@ const ROUTERS = {
   welcome: ROUTER_PREFIX + '/welcome',
   changePassword: ROUTER_PREFIX + '/account/changePassword',
   dashBoard: ROUTER_PREFIX + '/dashBoard',
+  dashBoardAdd: ROUTER_PREFIX + '/dashBoard/add',
   v: ROUTER_PREFIX + '/v',
   data_manage: ROUTER_PREFIX + '/v/data_manage',
   user_manage: ROUTER_PREFIX + '/v/user_manage',
@@ -52,6 +53,14 @@ export const Routes = [
         icon: 'barChart',
         authority: ['admin', 'staff'],
         component: './dashboard/index',
+      },
+      {
+        path: ROUTERS.dashBoardAdd,
+        name: '数据可视化',
+        icon: 'barChart',
+        hideInMenu: true,
+        authority: ['admin', 'staff'],
+        component: './dashboard/add',
       },
       {
         path: ROUTERS.changePassword,
