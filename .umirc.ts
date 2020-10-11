@@ -9,11 +9,21 @@ export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
+  analyze:{
+    analyzerMode: 'server',
+    analyzerPort: 8888,
+    openAnalyzer: true,
+    // generate stats file while ANALYZE_DUMP exist
+    generateStatsFile: false,
+    statsFilename: 'stats.json',
+    logLevel: 'info',
+    defaultSizes: 'parsed', // stat  // gzip
+  },
   routes: Routes,
   title: false,
   proxy: {
     '/api/': {
-      target: 'http://127.0.0.1:8080',
+      target: 'http://127.0.0.1:7777',
       changeOrigin: true,
       pathRewrite: {
         '^/api/': '',

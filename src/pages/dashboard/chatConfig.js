@@ -7,7 +7,7 @@ import './selectChat.less';
 const { TextArea } = Input;
 
 export default function({ initValues }) {
-  const { nextStep, prevStep, setChatConfigForm, chatType } = useContext(
+  const { nextStep, prevStep, setChatConfigForm, chatType, routerFields } = useContext(
     Context,
   );
   const [json, setJson] = useState({});
@@ -56,6 +56,16 @@ export default function({ initValues }) {
 
   return (
     <React.Fragment>
+      <div>
+        <div style={{ textAlign: 'center' }}>
+          <Button type="default" htmlType="button" onClick={prevStep} style={{ marginRight: 10 }}>
+            返回
+          </Button>
+          <Button type="primary" onClick={success}>
+            生成图表
+          </Button>
+        </div>
+      </div>
       <Row style={{ padding: '20px 0' }}>
         <Col xs={24} sm={12} md={4}>图表配置</Col>
         <Col xs={24} sm={24} md={18}>
@@ -74,23 +84,28 @@ export default function({ initValues }) {
                     onBlur={fastBlur}/>
           <p>基本规范 必须{}包括内容 key value 必须双引号包裹 最后一个value不能有,号存在</p>
         </Col>
-      </Row>
-      <p>
-        <a href={chatType.href} target={'_blank'}>
-          配置文件参考地址
-        </a>
-      </p>
+        <Col xs={24} sm={12} md={4}><a href={chatType.href} target={'_blank'}>配置文件参考地址</a>
+        </Col>
+        <Col xs={24} sm={24} md={8}>
+          <code style={{ whiteSpace: 'pre-wrap' }}>
+            {JSON.stringify({ 'xField': 'sales', 'yField': 'type' }, null, 2)}
+          </code>
+        </Col>
+        <Col xs={24} sm={24} md={12}>
+          <code style={{ whiteSpace: 'pre-wrap' }}>
+            {JSON.stringify(routerFields?.fields.map((d) => {
+              return {
+                map_name: d.map_name,
+                comment_tags: d.comment_tags,
+              };
+            }), null, 2)}
+          </code>
+        </Col>
 
-      <div>
-        <div style={{ textAlign: 'center' }}>
-          <Button type="default" htmlType="button" onClick={prevStep} style={{ marginRight: 10 }}>
-            返回
-          </Button>
-          <Button type="primary" onClick={success}>
-            生成图表
-          </Button>
-        </div>
-      </div>
+      </Row>
+
+
+
     </React.Fragment>
   );
 }
