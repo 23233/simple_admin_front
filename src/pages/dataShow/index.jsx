@@ -22,7 +22,7 @@ import req from '../../utils/url';
 import './index.less';
 
 import CollectionCreateForm from './dataForm';
-import { useRequest, useMount } from '@umijs/hooks';
+import { useRequest, useMount } from 'ahooks';
 import ROUTERS from '../../router';
 import Tools from '../../utils/tools';
 
@@ -180,28 +180,18 @@ const DataShow = props => {
     },
   );
 
-  // 获取所有路由列表
   useMount(async () => {
     const allTable = await req.getRouterLists();
     const remarks = allTable?.remarks;
     const tables = allTable?.tables;
     setAllRouter(tables);
     setRemarks(remarks);
-    if (tables?.length) {
-      const defaultSelect = params?.tab
-        ? tables[params?.tab]
-        : Object.keys(tables).filter(d => d !== config?.user_model_name)[0];
-      setSelectRouter(defaultSelect);
-      // 获取表的信息
-      fetchDataInfo(defaultSelect);
-      // 获取表数据
-      fetchDataList(defaultSelect);
-      // 获取自定义action信息
-      fetchAction(defaultSelect);
-    }
-
-
+    const defaultSelect = params?.tab
+      ? tables[params?.tab]
+      : Object.keys(tables).filter(d => d !== config?.user_model_name)[0];
+    tabChange(defaultSelect);
   });
+
 
   useEffect(() => {
     if (params.tab) {
@@ -226,6 +216,7 @@ const DataShow = props => {
       setSelectRow([]);
     }
   }, [params]);
+
 
   const tabChange = tab => {
     setSearchInput(undefined);

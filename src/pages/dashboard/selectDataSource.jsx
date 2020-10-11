@@ -1,33 +1,27 @@
 import React, { useContext, useEffect, useState } from 'react';
 import {
-  Form,
-  Input,
-  Button,
-  Space,
-  Select,
   List,
-  Typography,
   Spin,
-  PageHeader,
-  Row,
-  Col,
 } from 'antd';
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
-import { useMount, useRequest } from '@umijs/hooks';
-import req from '@/utils/url';
 import { history, Link, useModel } from 'umi';
 import './dataSource.less';
-import Tools from '../../utils/tools';
 import { Context } from './context';
 
-const { Paragraph } = Typography;
 
 export default function({ initValues }) {
   const { userInfo, config } = useModel('useAuthModel');
 
-  const { fetchInfoLoading, allRouter, remarks, setSelectRouter } = useContext(
+  const { fetchInfoLoading, allRouter, remarks, setSelectRouter, selectRouter, nextStep } = useContext(
     Context,
   );
+
+  const routerClick = (item) => {
+    if (selectRouter === allRouter[item]) {
+      nextStep();
+    } else {
+      setSelectRouter(allRouter[item]);
+    }
+  };
 
   return (
     <React.Fragment>
@@ -49,7 +43,7 @@ export default function({ initValues }) {
             <List.Item style={{ marginBottom: 5 }}>
               <div
                 title={remarks[item]}
-                onClick={() => setSelectRouter(allRouter[item])}
+                onClick={() => routerClick(item)}
                 className="source_li"
               >
                 {remarks[item]}

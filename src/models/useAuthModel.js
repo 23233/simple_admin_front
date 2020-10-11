@@ -1,5 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
-import { useLocalStorageState, useMount, useRequest } from '@umijs/hooks';
+import { useLocalStorageState, useMount, useRequest } from 'ahooks';
 import req from '../utils/url';
 import Router from '../router';
 

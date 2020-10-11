@@ -2,7 +2,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
 import { Card, message } from 'antd';
 import { history } from 'umi';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import req from '../../../utils/url';
 
 import CollectionCreateForm from '../../dataShow/dataForm';

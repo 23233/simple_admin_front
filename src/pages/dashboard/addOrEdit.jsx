@@ -1,16 +1,16 @@
 import React, { useEffect, useState } from 'react';
-import { Steps } from 'antd';
+import { Steps, Empty } from 'antd';
 import SelectDataSource from './selectDataSource';
 import GetData from './getData';
-import SelectChatType from './selectChat';
+import SelectChatType from './selectChart';
 import ChatConfig from './chatConfig';
-import { useMount, useRequest } from '@umijs/hooks';
+import { useMount, useRequest } from 'ahooks';
 import req from '../../utils/url';
 
 const { Step } = Steps;
 import { Context } from './context';
 
-export default function({ initValues }) {
+export default function({ initValues, onSuccess }) {
   const [nowStep, setNowStep] = useState(0);
   // 步骤列表
   const [stepList, setStepList] = useState([
@@ -74,7 +74,7 @@ export default function({ initValues }) {
         chatConfigForm,
         chatType,
       };
-      console.log('success', result);
+      onSuccess && onSuccess(result);
     }
   }, [nowStep]);
 
@@ -106,15 +106,18 @@ export default function({ initValues }) {
       <div>
         <Steps current={nowStep}>
           {stepList.map((d, i) => {
-            return <Step key={`step_${i}`} title={d} />;
+            return <Step key={`step_${i}`} title={d}/>;
           })}
         </Steps>
 
-        <div style={{ padding: '10px 0' }}>
-          {nowStep === 0 && <SelectDataSource />}
-          {nowStep === 1 && <GetData />}
-          {nowStep === 2 && <SelectChatType />}
-          {nowStep === 3 && <ChatConfig />}
+        <div style={{ padding: '25px 0' }}>
+          {nowStep === 0 && <SelectDataSource/>}
+          {nowStep === 1 && <GetData/>}
+          {nowStep === 2 && <SelectChatType/>}
+          {nowStep === 3 && <ChatConfig/>}
+          {
+            nowStep === 4 && <Empty description={'图表正在新增中,完成后会自动跳转...'}/>
+          }
         </div>
       </div>
     </Context.Provider>

@@ -14,7 +14,7 @@ import {
   Select,
   Spin,
 } from 'antd';
-import { useMount, useRequest } from '@umijs/hooks';
+import { useMount, useRequest } from 'ahooks';
 import req from '../../utils/url';
 
 const { Option } = Select;

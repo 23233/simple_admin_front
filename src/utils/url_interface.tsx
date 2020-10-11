@@ -27,9 +27,18 @@ export interface changeUserRoleReq {
   add?: boolean
 }
 
-// 认领poi
-export interface claimPoiReq {
-  poi_uid: string
-  remark: string
-  previews?: Array<string>
+
+// 新增或修改数据仪表台屏幕
+export interface addOrEditDashBoardScreen {
+  id?: number,
+  name: string,
+  is_default?: boolean
+}
+
+// 新增图表
+export interface addDashBoard {
+  name: string,
+  data_source: string,
+  config: string,
+  chat_type: string,
 }

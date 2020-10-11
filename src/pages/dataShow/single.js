@@ -2,7 +2,7 @@ import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import React, { useState, useEffect } from 'react';
 import req from '../../utils/url';
 import { Link, useModel, history } from 'umi';
-import { useRequest, useMount } from '@umijs/hooks';
+import { useRequest, useMount } from 'ahooks';
 import CollectionCreateForm from './dataForm';
 import { Button, Spin, Typography, Space, Tooltip, Statistic, Row, Col } from 'antd';
 import ROUTERS from '../../router';
@@ -40,8 +40,6 @@ export default function(props) {
   const { data, loading, run: fetchSingle } = useRequest(req.getSingleData, {
     manual: true,
   });
-
-  console.log('data', data);
 
   useEffect(() => {
     fetchSingle(routerName, id);

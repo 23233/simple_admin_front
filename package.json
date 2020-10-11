@@ -20,10 +20,12 @@
     ]
   },
   "dependencies": {
+    "@ant-design/charts": "^1.0.0",
     "@ant-design/pro-layout": "^5.0.12",
-    "@umijs/hooks": "^1.9.3",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.9",
+    "ahooks": "^2.6.1",
+    "dayjs": "^1.9.1",
     "lint-staged": "^10.0.7",
     "prettier": "^1.19.1",
     "react": "^16.12.0",

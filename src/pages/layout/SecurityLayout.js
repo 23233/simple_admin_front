@@ -1,14 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useModel, history, Link } from 'umi';
-import { Menu, Dropdown, Avatar } from 'antd';
+import { Menu, Dropdown, Avatar, message } from 'antd';
 import { stringify } from 'querystring';
 import Router from '../../router';
-import { LogoutOutlined } from '@ant-design/icons';
+import { LogoutOutlined, LockOutlined } from '@ant-design/icons';
+import CollectionCreateForm from '../dataShow/dataForm';
 
 import BasicLayout from '@ant-design/pro-layout';
+import { useRequest } from 'ahooks';
+import req from '../../utils/url';
 
 export default function(props) {
   const { userToken, userInfo, signout, config } = useModel('useAuthModel');
+  const [pShow, setPShow] = useState(false);
+
+  const { loading, run } = useRequest(req.changeUserPassword, {
+    manual: true, onSuccess: (data => {
+      message.success('修改密码成功');
+      setPShow(false);
+    }),
+  });
 
   if (!userToken) {
     const queryString = stringify({
@@ -95,12 +106,18 @@ export default function(props) {
     const { key } = event;
     if (key === 'logout') {
       signout();
+    } else if (key === 'changePassword') {
+      setPShow(true);
     }
   };
 
   const rightContentRender = (HeaderViewProps) => {
     const menuHeaderDropdown = (
       <Menu selectedKeys={[]} onClick={rightMenusClick}>
+        <Menu.Item key="changePassword">
+          <LockOutlined/>
+          变更密码
+        </Menu.Item>
         <Menu.Item key="logout">
           <LogoutOutlined/>
           退出登录
@@ -117,19 +134,56 @@ export default function(props) {
     );
   };
 
-  return <BasicLayout title={'后台管理'} {...props}
-                      breadcrumbRender={(routers = []) => [
-                        {
-                          path: '/',
-                          breadcrumbName: '首页',
-                        },
-                        ...routers,
-                      ]}
-                      menuDataRender={menuDataRender}
-                      menuItemRender={menuItemRender}
-                      rightContentRender={rightContentRender}
-  >
-    {props.children}
-  </BasicLayout>;
+  const passwordFields = {
+    fields: [{
+      name: 'Password',
+      types: 'string',
+      map_name: 'password',
+      xorm_tags: '',
+      sp_tags: '',
+    }],
+  };
+
+
+  const onPasswordChangeCreate = values => {
+
+    const params = {
+      id: parseInt(userInfo.userid),
+      user_name: userInfo.name,
+      password: values.password,
+    };
+
+    run(params);
+
+  };
+
+  return (
+    <BasicLayout title={'后台管理'} {...props}
+                 breadcrumbRender={(routers = []) => [
+                   {
+                     path: '/',
+                     breadcrumbName: '首页',
+                   },
+                   ...routers,
+                 ]}
+                 menuDataRender={menuDataRender}
+                 menuItemRender={menuItemRender}
+                 rightContentRender={rightContentRender}
+    >
+      {props.children}
+
+
+      {
+        pShow && <CollectionCreateForm
+          fieldsList={passwordFields}
+          initValues={{}}
+          onCreate={onPasswordChangeCreate}
+          onCancel={() => setPShow(false)}
+        />
+      }
+
+
+    </BasicLayout>
+  );
 
 }

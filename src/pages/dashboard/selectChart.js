@@ -20,8 +20,13 @@ export default function({ initValues }) {
   //   if ($(this).attr('tagName') === 'H2') {
   //     var p = $(this).text();
   //     var img = $('img', s[index + 1]).attr('src');
-  //     var href = $('a', s[index + 1]).attr('href');
-  //     result.push({ 'name': p, 'preview': img, 'href': window.location.protocol + "//" + window.location.host+ href });
+  //     var href = window.location.protocol + "//" + window.location.host+$('a', s[index + 1]).attr('href');
+  //     var types = new URL(href).pathname.replace("/demos/","")
+  //     var reg = /-(\w)/g;
+  //     types = types.replace(reg,function($,$1){
+  //         return $1.toUpperCase();
+  //         })
+  //     result.push({ 'name': p, 'preview': img, 'href': href,'types':types.slice(0, 1).toUpperCase() + types.slice(1) });
   //   }
   // });
 
@@ -79,7 +84,7 @@ export default function({ initValues }) {
               onClick={() => selectChat(item)}
               className="chat_li"
             >
-              <img src={item.preview} alt={item.name} />
+              <img src={item.preview} alt={item.name}/>
               <p>{item.name}</p>
             </div>
           </List.Item>

@@ -1,5 +1,7 @@
 import Req, { prefix } from '@/utils/request';
 import {
+  addDashBoard,
+  addOrEditDashBoardScreen,
   changePasswordReq,
   changeUserRoleReq,
   deleteDataReq,
@@ -104,6 +106,39 @@ const req = {
       data: data,
     });
   },
+
+  // 数据可视化屏幕
+  dashBoardScreenGet: () => {
+    return Req.get(`${p}/b/dash_board_screen`);
+  },
+  dashBoardScreenAddOrEdit: (data: addOrEditDashBoardScreen) => {
+    return Req.post(`${p}/b/dash_board_screen`, {
+      data: data,
+    });
+  },
+  dashBoardScreenDelete: (id: number) => {
+    return Req.delete(`${p}/b/dash_board_screen/${id}`);
+  },
+
+  // 数据可视化图表
+  dashBoardGet: (screenId: number) => {
+    return Req.get(`${p}/b/data_board/${screenId}`);
+  },
+  dashBoardAdd: (screenId: number, data: addDashBoard) => {
+    return Req.post(`${p}/b/data_board/${screenId}`, {
+      data: data,
+    });
+  },
+  dashBoardDelete: (screenId: number, id: number) => {
+    return Req.delete(`${p}/b/data_board/${screenId}/${id}`);
+  },
+  // 数据可视化获取数据源
+  dataBoardGetData: (routerName: string, data: object) => {
+    return Req.post(`${p}/b/data_board_data/${routerName}`, {
+      data: data,
+    });
+  },
+
 };
 
 

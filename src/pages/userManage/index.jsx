@@ -21,7 +21,7 @@ const { CheckableTag } = Tag;
 
 import CollectionCreateForm from '../dataShow/dataForm';
 import { useModel } from 'umi';
-import { useRequest, useMount } from '@umijs/hooks';
+import { useRequest, useMount } from 'ahooks';
 import ROUTERS from '../../router';
 
 const DataShow = props => {

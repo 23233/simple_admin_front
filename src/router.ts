@@ -64,6 +64,7 @@ export const Routes = [
       },
       {
         path: ROUTERS.changePassword,
+        hideInMenu: true,
         name: '更改密码',
         icon: 'lock',
         authority: ['guest'],

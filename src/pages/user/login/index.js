@@ -4,7 +4,7 @@ import React from 'react';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 
 import Style from './index.less';
-import { useRequest } from '@umijs/hooks';
+import { useRequest } from 'ahooks';
 import req from '../../../utils/url';
 import { parse } from 'querystring';
 import ROUTERS from '../../../router';
