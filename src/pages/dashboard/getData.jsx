@@ -1,5 +1,15 @@
 import React, { useContext } from 'react';
-import { Form, Input, Button, Space, InputNumber, Select, Row, Col, Popover } from 'antd';
+import {
+  Form,
+  Input,
+  Button,
+  Space,
+  InputNumber,
+  Select,
+  Row,
+  Col,
+  Popover,
+} from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Context } from './context';
 
@@ -66,27 +76,53 @@ export default function({ initValues }) {
   const varList = [
     {
       name: '$(now)',
-      desc: '当前时间(时间戳)',
+      desc:
+        '默认今天此时 支持减号 例： $(day) - 1 即为昨天 格式为 YYYY-MM-DD HH:mm:ss',
+    },
+    {
+      name: '$(unix)',
+      desc: '时间戳',
     },
     {
       name: '$(day)',
-      desc: '默认今天 支持减号 例： $(day) - 1 即为昨天 格式为 YYYY-MM-DD HH:mm:ss',
+      desc:
+        '默认今天此时 支持减号 例： $(day) - 1 即为昨天 格式为 YYYY-MM-DD HH:mm:ss',
+    },
+    {
+      name: '$(day_start)',
+      desc:
+        '默认今天0点 00:00:00 支持减号 例： $(day_start) - 1 即为昨天 格式为 YYYY-MM-DD 00:00:00',
+    },
+    {
+      name: '$(day_end)',
+      desc:
+        '默认今天23点 23:59:59 支持减号 例： $(day_end) - 1 即为昨天 格式为 YYYY-MM-DD 23:59:59',
     },
   ];
 
   return (
     <React.Fragment>
       <Form form={form} name="step1" onFinish={onFinish} autoComplete="off">
-        <Form.Item label="数据名称" name="name" rules={[{ required: true, message: '请输入名称', max: 25 }]}>
-          <Input type={'text'} max={25} placeholder={'请输入数据名称'}/>
+        <Form.Item
+          label="数据名称"
+          name="name"
+          rules={[{ required: true, message: '请输入名称', max: 25 }]}
+        >
+          <Input type={'text'} max={25} placeholder={'请输入数据名称'} />
         </Form.Item>
 
         <Form.Item label="条数限制" name="limit">
-          <InputNumber placeholder={'请输入条数限制 默认不限制'} style={{ width: '100%' }}/>
+          <InputNumber
+            placeholder={'请输入条数限制 默认不限制'}
+            style={{ width: '100%' }}
+          />
         </Form.Item>
 
         <Form.Item label="刷新间隔" name="refresh_interval">
-          <InputNumber placeholder={'请输入刷新间隔(秒)'} style={{ width: '100%' }}/>
+          <InputNumber
+            placeholder={'请输入刷新间隔(秒)'}
+            style={{ width: '100%' }}
+          />
         </Form.Item>
 
         <Form.List name="column_op">
@@ -175,9 +211,11 @@ export default function({ initValues }) {
                         style={{ width: '100%' }}
                         name={[field.name, 'value']}
                         fieldKey={[field.fieldKey, 'value']}
-                        rules={[{ required: true, message: '请输入内容', max: 100 }]}
+                        rules={[
+                          { required: true, message: '请输入内容', max: 100 },
+                        ]}
                       >
-                        <Input placeholder="请输入内容" maxLength="100"/>
+                        <Input placeholder="请输入内容" maxLength="100" />
                       </Form.Item>
                     </Col>
                     <Col xs={10} sm={10} md={3}>
@@ -188,10 +226,7 @@ export default function({ initValues }) {
                         fieldKey={[field.fieldKey, 'connect_type']}
                         initialValue={i > 0 ? connectList[0] : null}
                       >
-                        <Select
-                          style={{ width: '100%' }}
-                          disabled={i === 0}
-                        >
+                        <Select style={{ width: '100%' }} disabled={i === 0}>
                           {connectList.map((item, i) => (
                             <Select.Option
                               key={`${field.fieldKey}_${i}}`}
@@ -221,7 +256,7 @@ export default function({ initValues }) {
                     }}
                     block
                   >
-                    <PlusOutlined/>
+                    <PlusOutlined />
                     新增筛选条件
                   </Button>
                 </Form.Item>
@@ -232,7 +267,12 @@ export default function({ initValues }) {
 
         <Form.Item>
           <div style={{ textAlign: 'center' }}>
-            <Button type="default" htmlType="button" onClick={prevStep} style={{ marginRight: 10 }}>
+            <Button
+              type="default"
+              htmlType="button"
+              onClick={prevStep}
+              style={{ marginRight: 10 }}
+            >
               返回
             </Button>
             <Button type="primary" htmlType="submit">
