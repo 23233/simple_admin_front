@@ -3,6 +3,7 @@ import { Row, Col, Button, message, Input } from 'antd';
 import { Context } from './context';
 import ReactJson from 'react-json-view';
 import './selectChat.less';
+import Config from './config';
 
 const { TextArea } = Input;
 
@@ -112,7 +113,7 @@ export default function({ initValues }) {
               routerFields?.fields
                 .concat([
                   {
-                    map_name: 'distinct_default',
+                    map_name: Config.distinct_default,
                     comment_tags: '默认汇总去重字段',
                   },
                 ])

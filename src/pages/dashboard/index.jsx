@@ -140,31 +140,31 @@ export default function(props) {
           >
             {screens && screens?.length
               ? screens.map((item, index) => (
-                  <TabPane
-                    tab={
-                      <React.Fragment>
-                        <span>{item.name}</span>
-                        <Popover
-                          title={'变更名称'}
-                          trigger={'click'}
-                          content={
-                            <Search
-                              placeholder={'请输入新名称'}
-                              enterButton={'确定'}
-                              maxLength={20}
-                              allowClear
-                              onSearch={value => screenNameEdit(item.id, value)}
-                            />
-                          }
-                        >
-                          <EditOutlined style={{ margin: '0 0 0 10px' }} />
-                        </Popover>
-                      </React.Fragment>
-                    }
-                    key={item.id}
-                    closable={index >= 1}
-                  />
-                ))
+                <TabPane
+                  tab={
+                    <React.Fragment>
+                      <span>{item.name}</span>
+                      <Popover
+                        title={'变更名称'}
+                        trigger={'click'}
+                        content={
+                          <Search
+                            placeholder={'请输入新名称'}
+                            enterButton={'确定'}
+                            maxLength={20}
+                            allowClear
+                            onSearch={value => screenNameEdit(item.id, value)}
+                          />
+                        }
+                      >
+                        <EditOutlined style={{ margin: '0 0 0 10px' }}/>
+                      </Popover>
+                    </React.Fragment>
+                  }
+                  key={item.id}
+                  closable={index >= 1}
+                />
+              ))
               : null}
           </Tabs>
         </Spin>
@@ -177,6 +177,7 @@ export default function(props) {
                     data={d}
                     screenId={showScreen}
                     run_flush={flushData}
+                    delay={(i + 1) * 100}
                   />
                 </Col>
               );

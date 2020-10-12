@@ -12,13 +12,16 @@ import {
   ReloadOutlined,
 } from '@ant-design/icons';
 import './singleChart.less';
+import Config from './config';
+
 
 dayjs.locale(zh);
 
 const { confirm } = Modal;
 
-export default function({ data, screenId, run_flush }) {
+export default function({ data, screenId, run_flush, delay }) {
   const [dataList, setDataList] = useState([]);
+  const [showData, setShowData] = useState([]);
   const [previewShow, setPreviewShow] = useState(false);
   // 获取数据
   const { run: getDataSourceReq, loading: getDataSourceLoading } = useRequest(
@@ -33,7 +36,7 @@ export default function({ data, screenId, run_flush }) {
         }
       },
       [data.data_source.refresh_interval ? 'pollingInterval' : undefined]:
-        data.data_source.refresh_interval * 1000,
+      data.data_source.refresh_interval * 1000,
       pollingWhenHidden: false,
     },
   );
@@ -52,16 +55,33 @@ export default function({ data, screenId, run_flush }) {
   );
 
   useEffect(() => {
-    getSource();
+    setTimeout(() => {
+      getSource();
+    }, delay);
   }, [data]);
 
   useEffect(() => {
-    if (data.data_source.col_distinct) {
-      // todo 对数据进行去重聚合
+    if (data.data_source[Config.distinct_key]) {
+      const d = distinctAggregation(dataList, data.data_source[Config.distinct_key]);
+      setShowData(d);
+      return;
     }
+    setShowData(dataList);
   }, [dataList]);
 
   const defaultHeight = 150;
+
+  // 去重聚合统计
+  const distinctAggregation = (src, col_name) => {
+    // 去重
+    const uniques = (arr, u_key) => [...arr.reduce((p, c) => p.set(c[u_key], c), new Map()).values()];
+    const uniqueList = uniques(src, col_name);
+    // 统计
+    return uniqueList.map((d) => {
+      d[Config.distinct_default] = src.filter((b) => b[col_name] === d[col_name]).length;
+      return d;
+    });
+  };
 
   const parseData = () => {
     const col_op = data.data_source.column_op;
@@ -73,40 +93,31 @@ export default function({ data, screenId, run_flush }) {
           .unix()
           .toString();
       } else if (d.value.startsWith('$(day)')) {
-        if (d.value.indexOf('-') >= 1) {
-          const [c, opTime] = d.value.split('-');
-          d.value = dayjs()
-            .subtract(opTime.trim(), 'day')
-            .format('YYYY-MM-DD HH:mm:ss');
-        } else {
-          d.value = dayjs().format('YYYY-MM-DD HH:mm:ss');
-        }
+        d.value = varParse(d.value, 'YYYY-MM-DD HH:mm:ss');
       } else if (d.value.startsWith('$(day_start)')) {
-        if (d.value.indexOf('-') >= 1) {
-          const [c, opTime] = d.value.split('-');
-          d.value = dayjs()
-            .subtract(opTime.trim(), 'day')
-            .format('YYYY-MM-DD 00:00:00');
-        } else {
-          d.value = dayjs().format('YYYY-MM-DD 00:00:00');
-        }
+        d.value = varParse(d.value, 'YYYY-MM-DD 00:00:00');
       } else if (d.value.startsWith('$(day_end)')) {
-        if (d.value.indexOf('-') >= 1) {
-          const [c, opTime] = d.value.split('-');
-          d.value = dayjs()
-            .subtract(opTime.trim(), 'day')
-            .format('YYYY-MM-DD 23:59:59');
-        } else {
-          d.value = dayjs().format('YYYY-MM-DD 23:59:59');
-        }
+        d.value = varParse(d.value, 'YYYY-MM-DD 23:59:59');
       }
       return d;
     });
-    const d = {
+    return {
       column_op: col_op,
       limit: data.data_source.limit,
     };
-    return d;
+  };
+
+  const varParse = (srcValue, format) => {
+    let result;
+    if (srcValue.indexOf('-') >= 1) {
+      const [c, opTime] = srcValue.split('-');
+      result = dayjs()
+        .subtract(opTime.trim(), 'day')
+        .format(format);
+    } else {
+      result = dayjs().format(format);
+    }
+    return result;
   };
 
   const getSource = () => {
@@ -133,22 +144,22 @@ export default function({ data, screenId, run_flush }) {
     const c = {
       height: defaultHeight,
       ...data.config,
-      data: dataList,
+      data: showData,
     };
     const item = ChartList.find(d => d.name === data.chart_type);
     const Tag = Chart[item.types];
-    if (dataList) {
+    if (showData) {
       return (
         <Tag
           {...c}
           loading={getDataSourceLoading || deleteChartLoading}
           errorTemplate={error => {
-            return <Empty description={`渲染出现错误 ${error}`} />;
+            return <Empty description={`渲染出现错误 ${error}`}/>;
           }}
         />
       );
     }
-    return <Empty description={'未获取到数据,请检查数据获取方式'} />;
+    return <Empty description={'未获取到数据,请检查数据获取方式'}/>;
   };
 
   const showPreview = () => {
@@ -162,13 +173,13 @@ export default function({ data, screenId, run_flush }) {
         <div>{renders()}</div>
         <div className="op-wrap">
           <div className="icons" title="删除" onClick={deleteFunc}>
-            <DeleteOutlined />
+            <DeleteOutlined/>
           </div>
           <div className="icons" title="刷新" onClick={getSource}>
-            <ReloadOutlined />
+            <ReloadOutlined/>
           </div>
           <div className="icons" title="预览配置" onClick={showPreview}>
-            <ConsoleSqlOutlined />
+            <ConsoleSqlOutlined/>
           </div>
         </div>
       </div>

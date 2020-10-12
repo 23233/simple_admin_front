@@ -12,6 +12,8 @@ import {
 } from 'antd';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import { Context } from './context';
+import Config from './config';
+
 
 export default function({ initValues }) {
   const { nextStep, prevStep, routerFields, setDataSourceForm } = useContext(
@@ -108,7 +110,7 @@ export default function({ initValues }) {
           name="name"
           rules={[{ required: true, message: '请输入名称', max: 25 }]}
         >
-          <Input type={'text'} max={25} placeholder={'请输入数据名称'} />
+          <Input type={'text'} max={25} placeholder={'请输入数据名称'}/>
         </Form.Item>
 
         <Form.Item label="条数限制" name="limit">
@@ -127,8 +129,8 @@ export default function({ initValues }) {
 
         <Form.Item
           label={'汇总去重'}
-          name={'col_distinct'}
-          extra={'去重默认字段名 distinct_default'}
+          name={Config.distinct_key}
+          extra={`去重默认字段名 ${Config.distinct_default}`}
           rules={[{ required: false, message: '请选择汇总去重字段' }]}
         >
           <Select style={{ width: '100%' }} placeholder="请选择汇总去重字段">
@@ -230,7 +232,7 @@ export default function({ initValues }) {
                           { required: true, message: '请输入内容', max: 100 },
                         ]}
                       >
-                        <Input placeholder="请输入内容" maxLength="100" />
+                        <Input placeholder="请输入内容" maxLength="100"/>
                       </Form.Item>
                     </Col>
                     <Col xs={10} sm={10} md={3}>
@@ -271,7 +273,7 @@ export default function({ initValues }) {
                     }}
                     block
                   >
-                    <PlusOutlined />
+                    <PlusOutlined/>
                     新增筛选条件
                   </Button>
                 </Form.Item>
