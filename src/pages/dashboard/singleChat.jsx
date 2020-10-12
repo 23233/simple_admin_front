@@ -67,7 +67,7 @@ export default function({ data, screenId, run_flush, delay }) {
         } else {
           d.value = dayjs().format('YYYY-MM-DD HH:mm:ss');
         }
-      } else if (d.value.startWith('$(day_start)')) {
+      } else if (d.value.startsWith('$(day_start)')) {
         if (d.value.indexOf('-') >= 1) {
           const [c, opTime] = d.value.split('-');
           d.value = dayjs()
@@ -76,7 +76,7 @@ export default function({ data, screenId, run_flush, delay }) {
         } else {
           d.value = dayjs().format('YYYY-MM-DD 00:00:00');
         }
-      } else if (d.value.startWith('$(day_end)')) {
+      } else if (d.value.startsWith('$(day_end)')) {
         if (d.value.indexOf('-') >= 1) {
           const [c, opTime] = d.value.split('-');
           d.value = dayjs()
