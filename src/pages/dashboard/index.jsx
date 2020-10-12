@@ -177,7 +177,6 @@ export default function(props) {
                     data={d}
                     screenId={showScreen}
                     run_flush={flushData}
-                    delay={200 * (i + 1)}
                   />
                 </Col>
               );

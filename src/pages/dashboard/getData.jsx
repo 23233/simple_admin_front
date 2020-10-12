@@ -125,6 +125,21 @@ export default function({ initValues }) {
           />
         </Form.Item>
 
+        <Form.Item
+          label={'汇总去重'}
+          name={'col_distinct'}
+          extra={'去重默认字段名 distinct_default'}
+          rules={[{ required: false, message: '请选择汇总去重字段' }]}
+        >
+          <Select style={{ width: '100%' }} placeholder="请选择汇总去重字段">
+            {routerFields?.fields?.map((item, i) => (
+              <Select.Option key={`set_${i}`} value={item.map_name}>
+                {item.comment_tags || item.name}
+              </Select.Option>
+            ))}
+          </Select>
+        </Form.Item>
+
         <Form.List name="column_op">
           {(fields, { add, remove }) => {
             return (

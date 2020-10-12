@@ -6,14 +6,18 @@ import ChartList from './chatType';
 import { Skeleton, Modal, Empty } from 'antd';
 import dayjs from 'dayjs';
 import zh from 'dayjs/locale/zh-cn';
-import { DeleteOutlined, ConsoleSqlOutlined } from '@ant-design/icons';
+import {
+  DeleteOutlined,
+  ConsoleSqlOutlined,
+  ReloadOutlined,
+} from '@ant-design/icons';
 import './singleChart.less';
 
 dayjs.locale(zh);
 
 const { confirm } = Modal;
 
-export default function({ data, screenId, run_flush, delay }) {
+export default function({ data, screenId, run_flush }) {
   const [dataList, setDataList] = useState([]);
   const [previewShow, setPreviewShow] = useState(false);
   // 获取数据
@@ -47,9 +51,19 @@ export default function({ data, screenId, run_flush, delay }) {
     },
   );
 
-  const defaultHeight = 150;
+  useEffect(() => {
+    getSource();
+  }, [data]);
 
   useEffect(() => {
+    if (data.data_source.col_distinct) {
+      // todo 对数据进行去重聚合
+    }
+  }, [dataList]);
+
+  const defaultHeight = 150;
+
+  const parseData = () => {
     const col_op = data.data_source.column_op;
     col_op?.map(d => {
       if (d.value === '$(now)') {
@@ -92,10 +106,13 @@ export default function({ data, screenId, run_flush, delay }) {
       column_op: col_op,
       limit: data.data_source.limit,
     };
-    setTimeout(() => {
-      getDataSourceReq(data.data_source.selectRouter, d);
-    }, delay);
-  }, []);
+    return d;
+  };
+
+  const getSource = () => {
+    const d = parseData();
+    getDataSourceReq(data.data_source.selectRouter, d);
+  };
 
   // 删除图例
   const deleteFunc = () => {
@@ -121,7 +138,15 @@ export default function({ data, screenId, run_flush, delay }) {
     const item = ChartList.find(d => d.name === data.chart_type);
     const Tag = Chart[item.types];
     if (dataList) {
-      return <Tag {...c} />;
+      return (
+        <Tag
+          {...c}
+          loading={getDataSourceLoading || deleteChartLoading}
+          errorTemplate={error => {
+            return <Empty description={`渲染出现错误 ${error}`} />;
+          }}
+        />
+      );
     }
     return <Empty description={'未获取到数据,请检查数据获取方式'} />;
   };
@@ -131,16 +156,16 @@ export default function({ data, screenId, run_flush, delay }) {
   };
 
   return (
-    <Skeleton
-      loading={getDataSourceLoading || deleteChartLoading}
-      style={{ minHeight: defaultHeight }}
-    >
-      <div className="chart_wrap">
+    <React.Fragment>
+      <div className="chart_wrap" style={{ minHeight: defaultHeight }}>
         <h4 title={data.name}>{data.name}</h4>
         <div>{renders()}</div>
         <div className="op-wrap">
           <div className="icons" title="删除" onClick={deleteFunc}>
             <DeleteOutlined />
+          </div>
+          <div className="icons" title="刷新" onClick={getSource}>
+            <ReloadOutlined />
           </div>
           <div className="icons" title="预览配置" onClick={showPreview}>
             <ConsoleSqlOutlined />
@@ -162,6 +187,6 @@ export default function({ data, screenId, run_flush, delay }) {
           </code>
         </div>
       </Modal>
-    </Skeleton>
+    </React.Fragment>
   );
 }
