@@ -137,6 +137,13 @@ const req = {
       data: data,
     });
   },
+  dashBoardEditSize: (screenId: number, id: number, extra: string) => {
+    return Req.put(`${p}/b/data_board_size/${screenId}/${id}`, {
+      data: {
+        extra,
+      },
+    });
+  },
   dashBoardDelete: (screenId: number, id: number) => {
     return Req.delete(`${p}/b/data_board/${screenId}/${id}`);
   },

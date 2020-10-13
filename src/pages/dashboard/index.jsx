@@ -12,12 +12,13 @@ import {
   Row,
   Col,
 } from 'antd';
-import { useRequest } from 'ahooks';
+import { useRequest, useResponsive } from 'ahooks';
 import req from '@/utils/url';
 import { EditOutlined } from '@ant-design/icons';
 import { useModel, Link } from 'umi';
 import ROUTERS from '@/router';
 import SingleChart from './singleChat';
+
 
 const { TabPane } = Tabs;
 const { Paragraph } = Typography;
@@ -25,6 +26,7 @@ const { Paragraph } = Typography;
 const { Search } = Input;
 
 export default function(props) {
+  const responsive = useResponsive();
   const { userInfo } = useModel('useAuthModel');
   const [showScreen, setShowScreen] = useState(0);
   const [chatList, setChatList] = useState([]);
@@ -73,6 +75,7 @@ export default function(props) {
           resp.map(d => {
             d.config = JSON.parse(d.config);
             d.data_source = JSON.parse(d.data_source);
+            d.extra = d.extra ? JSON.parse(d.extra) : {};
             return d;
           });
           setChatList(resp);
@@ -168,22 +171,43 @@ export default function(props) {
               : null}
           </Tabs>
         </Spin>
-        <Spin spinning={getChatsLoading}>
-          <Row>
-            {chatList.map((d, i) => {
-              return (
-                <Col key={d.id} xs={24} sm={12} md={8} xl={6}>
+        <div style={{ minHeight: window.innerHeight - 350 }} id="canvas-wrap">
+          <Spin spinning={getChatsLoading}>
+            {
+              responsive['xl'] ? chatList.map((d, i) => {
+                return (
                   <SingleChart
+                    key={d.id}
                     data={d}
                     screenId={showScreen}
                     run_flush={flushData}
+                    order={i}
                     delay={(i + 1) * 100}
                   />
-                </Col>
-              );
-            })}
-          </Row>
-        </Spin>
+                );
+              }) : <Row>
+                {
+                  chatList.map((d, i) => {
+                    return (
+                      <Col key={d.id} xs={24} sm={12} md={8} xl={6}>
+                        <SingleChart
+                          data={d}
+                          screenId={showScreen}
+                          run_flush={flushData}
+                          order={i}
+                          freePosition={false}
+                          delay={(i + 1) * 100}
+                        />
+                      </Col>
+                    );
+                  })
+                }
+
+              </Row>
+            }
+          </Spin>
+
+        </div>
       </Card>
     </PageHeaderWrapper>
   );

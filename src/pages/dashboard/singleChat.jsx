@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import req from '../../utils/url';
-import { useMount, useRequest } from 'ahooks';
+import { useMount, useRequest, useSize, useUpdateEffect } from 'ahooks';
 import Chart from '@ant-design/charts';
 import ChartList from './chatType';
 import { history } from 'umi';
@@ -16,16 +16,22 @@ import {
 import './singleChart.less';
 import Config from './config';
 import ROUTERS from '../../router';
+import { Rnd } from 'react-rnd';
 
 
 dayjs.locale(zh);
 
 const { confirm } = Modal;
 
-export default function({ data, screenId, run_flush, delay }) {
+export default function({ data, screenId, run_flush, order, delay, freePosition = true }) {
+  const defaultSize = 200;
   const [dataList, setDataList] = useState([]);
   const [showData, setShowData] = useState([]);
   const [previewShow, setPreviewShow] = useState(false);
+  const [width, setWidth] = useState(data?.extra?.width || defaultSize);
+  const [height, setHeight] = useState(data?.extra?.height || defaultSize);
+  const [x, setX] = useState(data?.extra?.x || 0);
+  const [y, setY] = useState(data?.extra.y || 0);
 
   const opList = [
     {
@@ -82,6 +88,25 @@ export default function({ data, screenId, run_flush, delay }) {
     },
   );
 
+  // 更新位置
+  const { run: updatePositionReq } = useRequest(req.dashBoardEditSize, { manual: true, debounceInterval: 200 });
+
+
+  useUpdateEffect(() => {
+    runUpdatePosition();
+  }, [x, y, width, height]);
+
+  const runUpdatePosition = () => {
+    const d = {
+      x,
+      y,
+      width,
+      height,
+    };
+    updatePositionReq(screenId, data.id, JSON.stringify(d));
+  };
+
+
   useEffect(() => {
     setTimeout(() => {
       getSource();
@@ -97,18 +122,20 @@ export default function({ data, screenId, run_flush, delay }) {
     setShowData(dataList);
   }, [dataList]);
 
-  const defaultHeight = 150;
-
   // 去重聚合统计
   const distinctAggregation = (src, col_name) => {
-    // 去重
-    const uniques = (arr, u_key) => [...arr.reduce((p, c) => p.set(c[u_key], c), new Map()).values()];
-    const uniqueList = uniques(src, col_name);
-    // 统计
-    return uniqueList.map((d) => {
-      d[Config.distinct_key] = src.filter((b) => b[col_name] === d[col_name]).length;
-      return d;
-    });
+    if (src && src.length) {
+      // 去重
+      const uniques = (arr, u_key) => [...arr.reduce((p, c) => p.set(c[u_key], c), new Map()).values()];
+      const uniqueList = uniques(src, col_name);
+      // 统计
+      return uniqueList.map((d) => {
+        d[Config.distinct_key] = src.filter((b) => b[col_name] === d[col_name]).length;
+        return d;
+      });
+    }
+    return src;
+
   };
 
   const parseData = () => {
@@ -170,7 +197,6 @@ export default function({ data, screenId, run_flush, delay }) {
   // 类型判断
   const renders = () => {
     const c = {
-      height: defaultHeight,
       ...data.config,
       data: showData,
     };
@@ -194,12 +220,11 @@ export default function({ data, screenId, run_flush, delay }) {
     setPreviewShow(true);
   };
 
-
-  return (
-    <React.Fragment>
-      <div className="chart_wrap" style={{ minHeight: defaultHeight }}>
+  const content = () => {
+    return (
+      <div className="chart_wrap">
         <h4 title={data.name}>{data.name}</h4>
-        <div>{renders()}</div>
+        <div style={{ height: freePosition ? 'calc(100% - 30px)' : defaultSize }}>{renders()}</div>
         <div className="op-wrap">
           {
             opList.map((d, i) => {
@@ -212,6 +237,31 @@ export default function({ data, screenId, run_flush, delay }) {
           }
         </div>
       </div>
+    );
+  };
+
+
+  return (
+    <React.Fragment>
+      {
+        freePosition ? <Rnd
+          size={{ width, height }}
+          position={{ x, y }}
+          bounds={'#canvas-wrap'}
+          onDragStop={(e, d) => {
+            setX(d.x);
+            setY(d.y);
+          }}
+          onResizeStop={(e, direction, ref, delta, position) => {
+            setWidth(ref.style.width);
+            setHeight(ref.style.height);
+            setX(position.x);
+            setY(position.y);
+          }}
+        >
+          {content()}
+        </Rnd> : content()
+      }
 
       <Modal
         title={'预览配置'}

@@ -132,7 +132,7 @@ export default function({ initValues }) {
         <Form.Item
           label={'汇总去重'}
           name={Config.distinct_key}
-          extra={`去重默认字段名 ${Config.distinct_key}`}
+          extra={`去重后保存默认字段名 ${Config.distinct_key}`}
           rules={[{ required: false, message: '请选择汇总去重字段' }]}
         >
           <Select style={{ width: '100%' }} placeholder="请选择汇总去重字段">
