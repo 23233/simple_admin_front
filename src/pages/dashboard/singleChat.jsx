@@ -3,16 +3,19 @@ import req from '../../utils/url';
 import { useMount, useRequest } from 'ahooks';
 import Chart from '@ant-design/charts';
 import ChartList from './chatType';
+import { history } from 'umi';
 import { Skeleton, Modal, Empty } from 'antd';
 import dayjs from 'dayjs';
 import zh from 'dayjs/locale/zh-cn';
 import {
   DeleteOutlined,
+  EditOutlined,
   ConsoleSqlOutlined,
   ReloadOutlined,
 } from '@ant-design/icons';
 import './singleChart.less';
 import Config from './config';
+import ROUTERS from '../../router';
 
 
 dayjs.locale(zh);
@@ -23,6 +26,31 @@ export default function({ data, screenId, run_flush, delay }) {
   const [dataList, setDataList] = useState([]);
   const [showData, setShowData] = useState([]);
   const [previewShow, setPreviewShow] = useState(false);
+
+  const opList = [
+    {
+      name: '编辑',
+      icon: <EditOutlined/>,
+      func: () => history.push(ROUTERS.dashBoardEdit + `?screenId=${screenId}&id=${data.id}`),
+    },
+    {
+      name: '删除',
+      icon: <DeleteOutlined/>,
+      func: () => deleteFunc(),
+    },
+    {
+      name: '刷新',
+      icon: <ReloadOutlined/>,
+      func: () => getSource(),
+    },
+    {
+      name: '预览配置',
+      icon: <ConsoleSqlOutlined/>,
+      func: () => showPreview(),
+    },
+  ];
+
+
   // 获取数据
   const { run: getDataSourceReq, loading: getDataSourceLoading } = useRequest(
     req.dataBoardGetData,
@@ -166,21 +194,22 @@ export default function({ data, screenId, run_flush, delay }) {
     setPreviewShow(true);
   };
 
+
   return (
     <React.Fragment>
       <div className="chart_wrap" style={{ minHeight: defaultHeight }}>
         <h4 title={data.name}>{data.name}</h4>
         <div>{renders()}</div>
         <div className="op-wrap">
-          <div className="icons" title="删除" onClick={deleteFunc}>
-            <DeleteOutlined/>
-          </div>
-          <div className="icons" title="刷新" onClick={getSource}>
-            <ReloadOutlined/>
-          </div>
-          <div className="icons" title="预览配置" onClick={showPreview}>
-            <ConsoleSqlOutlined/>
-          </div>
+          {
+            opList.map((d, i) => {
+              return (
+                <div className="icons" key={`chart_op_${i}`} title={d.name} onClick={d.func}>
+                  {d.icon}
+                </div>
+              );
+            })
+          }
         </div>
       </div>
 

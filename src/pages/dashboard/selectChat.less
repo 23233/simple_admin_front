@@ -3,10 +3,16 @@
   padding: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
-  &:hover {
+
+  &:hover, &.active {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
     transform: translateY(-10px);
   }
+
+  &.active {
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  }
+
   img {
     height: 150px;
     width: auto;
@@ -20,4 +26,5 @@
     text-align: center;
     font-size: 14px;
   }
+
 }

@@ -104,7 +104,10 @@ export default function({ initValues }) {
 
   return (
     <React.Fragment>
-      <Form form={form} name="step1" onFinish={onFinish} autoComplete="off">
+      <Form form={form} name="step1" onFinish={onFinish} autoComplete="off" initialValues={{
+        ...initValues?.data_source,
+        [Config.distinct_key]: initValues?.data_source?.[Config.distinct_default],
+      }}>
         <Form.Item
           label="数据名称"
           name="name"

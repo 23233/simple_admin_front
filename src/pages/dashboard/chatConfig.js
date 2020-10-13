@@ -15,7 +15,7 @@ export default function({ initValues }) {
     chatType,
     routerFields,
   } = useContext(Context);
-  const [json, setJson] = useState({});
+  const [json, setJson] = useState(initValues || {});
   const [fast, setFast] = useState(null);
 
   const onChange = item => {
@@ -93,9 +93,12 @@ export default function({ initValues }) {
             onChange={e => setFast(e.target.value)}
             placeholder={'配置json粘贴在这里'}
           />
-          <Button type={'primary'} onClick={fastBlur}>
-            生成配置
-          </Button>
+          <div style={{ margin: '10px 0' }}>
+            <Button onClick={fastBlur}>
+              生成配置
+            </Button>
+          </div>
+
         </Col>
         <Col xs={24} sm={12} md={4}>
           <a href={chatType.href} target={'_blank'}>
@@ -103,11 +106,22 @@ export default function({ initValues }) {
           </a>
         </Col>
         <Col xs={24} sm={24} md={8}>
+
+          {
+            initValues && Object.keys(initValues).length ? <div>
+              <p style={{ margin: 0 }}>现有配置</p>
+              <code style={{ whiteSpace: 'pre-wrap' }}>
+                {JSON.stringify(initValues, null, 2)}
+              </code>
+            </div> : null
+          }
+          <p style={{ margin: 0 }}>快捷配置格式参考</p>
           <code style={{ whiteSpace: 'pre-wrap' }}>
             {JSON.stringify({ xField: 'sales', yField: 'type' }, null, 2)}
           </code>
         </Col>
         <Col xs={24} sm={24} md={12}>
+          <p style={{ margin: 0 }}>数据源字段信息</p>
           <code style={{ whiteSpace: 'pre-wrap' }}>
             {JSON.stringify(
               routerFields?.fields

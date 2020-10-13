@@ -7,7 +7,7 @@ import charTypeJson from './chatType.json';
 const { Option } = Select;
 
 export default function({ initValues }) {
-  const { nextStep, prevStep, setChatType } = useContext(Context);
+  const { nextStep, prevStep, setChatType, chatType } = useContext(Context);
 
   // 获取方式 https://charts.ant.design/demos/global
   // var importJs=document.createElement('script')//在页面新建一个script标签
@@ -82,7 +82,7 @@ export default function({ initValues }) {
             <div
               title={item.name}
               onClick={() => selectChat(item)}
-              className="chat_li"
+              className={`chat_li ${chatType === item.name ? 'active' : ''}`}
             >
               <img src={item.preview} alt={item.name}/>
               <p>{item.name}</p>

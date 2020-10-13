@@ -124,8 +124,16 @@ const req = {
   dashBoardGet: (screenId: number) => {
     return Req.get(`${p}/b/data_board/${screenId}`);
   },
+  dashBoardSingleGet: (screenId: number, id: number) => {
+    return Req.get(`${p}/b/data_board/${screenId}/${id}`);
+  },
   dashBoardAdd: (screenId: number, data: addDashBoard) => {
     return Req.post(`${p}/b/data_board/${screenId}`, {
+      data: data,
+    });
+  },
+  dashBoardEdit: (screenId: number, id: number, data: addDashBoard) => {
+    return Req.put(`${p}/b/data_board/${screenId}/${id}`, {
       data: data,
     });
   },

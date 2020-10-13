@@ -16,11 +16,11 @@ export default function({ initValues }) {
   );
 
   const routerClick = (item) => {
-    if (selectRouter === allRouter[item]) {
-      nextStep();
-    } else {
+    if (selectRouter !== allRouter[item]) {
       setSelectRouter(allRouter[item]);
     }
+    nextStep();
+
   };
 
   return (
@@ -44,7 +44,7 @@ export default function({ initValues }) {
               <div
                 title={remarks[item]}
                 onClick={() => routerClick(item)}
-                className="source_li"
+                className={`source_li ${selectRouter === allRouter[item] ? 'active' : ''}`}
               >
                 {remarks[item]}
               </div>

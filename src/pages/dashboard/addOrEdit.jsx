@@ -24,7 +24,7 @@ export default function({ initValues, onSuccess }) {
   // 所有表别名信息
   const [remarks, setRemarks] = useState([]);
   // 当前选中的表名
-  const [selectRouter, setSelectRouter] = useState(null);
+  const [selectRouter, setSelectRouter] = useState(initValues?.data_source?.selectRouter);
   // 当前选中的表信息
   const [routerFields, setRouterFields] = useState({});
   // 显示数据源
@@ -34,7 +34,7 @@ export default function({ initValues, onSuccess }) {
   // 配置文件获取方式
   const [chatConfigForm, setChatConfigForm] = useState({});
   // 选中的图表类型
-  const [chatType, setChatType] = useState(null);
+  const [chatType, setChatType] = useState(initValues?.chart_type);
 
   // 获取表信息
   const { run: fetchDataInfo, loading: fetchInfoLoading } = useRequest(
@@ -45,7 +45,6 @@ export default function({ initValues, onSuccess }) {
         if (!resp?.status) {
           setRouterFields(resp);
           setShowDataSource(!showDataSource);
-          nextStep();
         }
       },
     },
@@ -112,11 +111,11 @@ export default function({ initValues, onSuccess }) {
 
         <div style={{ padding: '25px 0' }}>
           {nowStep === 0 && <SelectDataSource/>}
-          {nowStep === 1 && <GetData/>}
+          {nowStep === 1 && <GetData initValues={initValues}/>}
           {nowStep === 2 && <SelectChatType/>}
-          {nowStep === 3 && <ChatConfig/>}
+          {nowStep === 3 && <ChatConfig initValues={initValues?.config}/>}
           {
-            nowStep === 4 && <Empty description={'图表正在新增中,完成后会自动跳转...'}/>
+            nowStep === 4 && <Empty description={'图表正在处理中,完成后会自动跳转...'}/>
           }
         </div>
       </div>
