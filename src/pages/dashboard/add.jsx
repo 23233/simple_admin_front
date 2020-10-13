@@ -2,7 +2,7 @@ import React from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Card } from 'antd';
 import { history } from 'umi';
-import AddOrEditComp from './addOrEdit';
+import DynamicAddOrEdit from "./dynamic_loader"
 import req from '../../utils/url';
 import { useRequest } from 'ahooks';
 import ROUTERS from '../../router';
@@ -39,7 +39,7 @@ export default function(props) {
   return (
     <PageHeaderWrapper content="新增可视化图表">
       <Card>
-        <AddOrEditComp onSuccess={addSuccess}/>
+        <DynamicAddOrEdit onSuccess={addSuccess}/>
       </Card>
     </PageHeaderWrapper>
   );

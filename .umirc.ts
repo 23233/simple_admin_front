@@ -9,7 +9,8 @@ export default defineConfig({
   nodeModulesTransform: {
     type: 'none',
   },
-  analyze:{
+  dynamicImport: {},
+  analyze: {
     analyzerMode: 'server',
     analyzerPort: 8888,
     openAnalyzer: true,
@@ -23,7 +24,7 @@ export default defineConfig({
   title: false,
   proxy: {
     '/api/': {
-      target: 'http://127.0.0.1:7777',
+      target: 'http://127.0.0.1:8080',
       changeOrigin: true,
       pathRewrite: {
         '^/api/': '',

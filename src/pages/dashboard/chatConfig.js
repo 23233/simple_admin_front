@@ -127,7 +127,7 @@ export default function({ initValues }) {
               routerFields?.fields
                 .concat([
                   {
-                    map_name: Config.distinct_default,
+                    map_name: Config.distinct_key,
                     comment_tags: '默认汇总去重字段',
                   },
                 ])

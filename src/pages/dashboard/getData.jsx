@@ -16,6 +16,7 @@ import Config from './config';
 
 
 export default function({ initValues }) {
+  console.log('initValues', initValues);
   const { nextStep, prevStep, routerFields, setDataSourceForm } = useContext(
     Context,
   );
@@ -105,9 +106,7 @@ export default function({ initValues }) {
   return (
     <React.Fragment>
       <Form form={form} name="step1" onFinish={onFinish} autoComplete="off" initialValues={{
-        ...initValues?.data_source,
-        [Config.distinct_key]: initValues?.data_source?.[Config.distinct_default],
-      }}>
+        ...initValues?.data_source}}>
         <Form.Item
           label="数据名称"
           name="name"
@@ -133,7 +132,7 @@ export default function({ initValues }) {
         <Form.Item
           label={'汇总去重'}
           name={Config.distinct_key}
-          extra={`去重默认字段名 ${Config.distinct_default}`}
+          extra={`去重默认字段名 ${Config.distinct_key}`}
           rules={[{ required: false, message: '请选择汇总去重字段' }]}
         >
           <Select style={{ width: '100%' }} placeholder="请选择汇总去重字段">

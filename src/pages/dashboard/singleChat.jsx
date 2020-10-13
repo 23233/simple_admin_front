@@ -106,7 +106,7 @@ export default function({ data, screenId, run_flush, delay }) {
     const uniqueList = uniques(src, col_name);
     // 统计
     return uniqueList.map((d) => {
-      d[Config.distinct_default] = src.filter((b) => b[col_name] === d[col_name]).length;
+      d[Config.distinct_key] = src.filter((b) => b[col_name] === d[col_name]).length;
       return d;
     });
   };

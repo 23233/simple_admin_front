@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { PageHeaderWrapper } from '@ant-design/pro-layout';
 import { Card, Empty } from 'antd';
 import { history } from 'umi';
-import AddOrEditComp from './addOrEdit';
+import DynamicAddOrEdit from "./dynamic_loader"
 import req from '../../utils/url';
 import { useRequest } from 'ahooks';
 import ROUTERS from '../../router';
@@ -61,7 +61,7 @@ export default function(props) {
     <PageHeaderWrapper content="编辑图表">
       <Card>
         {
-          item && Object.keys(item).length ? <AddOrEditComp onSuccess={editSuccess} initValues={item}/> :
+          item && Object.keys(item).length ? <DynamicAddOrEdit onSuccess={editSuccess} initValues={item}/> :
             <Empty description={'获取数据失败'}/>
         }
       </Card>
