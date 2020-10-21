@@ -84,7 +84,7 @@ const DataShow = props => {
   // 执行操作之后刷新
   const taskSuccess = d => {
     if (!d?.status) {
-      fetchDataList(selectRouter, { page: nowPage });
+      fetchDataRun();
     }
   };
   // 获取表信息
@@ -147,7 +147,7 @@ const DataShow = props => {
     manual: true,
     onSuccess: d => {
       if (!d?.status) {
-        fetchDataList(selectRouter);
+        fetchDataRun();
         setEditModalShow(false);
       }
     },
@@ -159,7 +159,7 @@ const DataShow = props => {
       manual: true,
       onSuccess: d => {
         if (!d?.status) {
-          fetchDataList(selectRouter, { page: nowPage });
+          fetchDataRun();
           setEditModalShow(false);
         }
       },
@@ -173,7 +173,7 @@ const DataShow = props => {
       manual: true,
       onSuccess: d => {
         if (!d?.status) {
-          fetchDataList(selectRouter, { page: nowPage });
+          fetchDataRun();
           setActionModalShow(false);
         }
       },
@@ -199,17 +199,7 @@ const DataShow = props => {
       setSelectRouter(params.tab);
       // 获取表的信息
       fetchDataInfo(params.tab);
-      if (params.search) {
-        const selectCols = params.cols.split(',');
-        setSearchInput(params.search);
-        searchText(params.tab, params.search, selectCols, !!parseInt(params.match));
-        setSearchSelectCols(selectCols);
-        setSearchFullMatch(String(params.match));
-      } else {
-        // 获取表数据
-        fetchDataList(params.tab);
-        setSearchSelectCols([]);
-      }
+      fetchDataRun();
       // 获取自定义action信息
       fetchAction(params.tab);
       // 清空选中条件
@@ -218,10 +208,27 @@ const DataShow = props => {
   }, [params]);
 
 
+  // 发起数据获取请求
+  const fetchDataRun = () => {
+    if (params.search) {
+      const selectCols = params.cols.split(',');
+      setSearchInput(params.search);
+      searchText(params.tab, params.search, selectCols, !!parseInt(params.match));
+      setSearchSelectCols(selectCols);
+      setSearchFullMatch(String(params.match));
+    } else {
+      // 获取表数据
+      fetchDataList(params.tab, { page: nowPage });
+      setSearchSelectCols([]);
+    }
+  };
+
+
   const tabChange = tab => {
     setSearchInput(undefined);
     history.push(props.match.url + '?tab=' + tab);
   };
+
 
   // 搜索切换
   const searchChange = value => {
@@ -403,7 +410,7 @@ const DataShow = props => {
 
   const pageChange = (page, pageSize) => {
     setNowPage(page);
-    fetchDataList(selectRouter, { page: page });
+    fetchDataRun();
     rowOnChange([]);
   };
 
@@ -498,7 +505,7 @@ const DataShow = props => {
         </Button>
       </Col>
       <Col>
-        <Button onClick={e => fetchDataList(selectRouter, { page: nowPage })}>
+        <Button onClick={e => fetchDataRun()}>
           刷新
         </Button>
       </Col>

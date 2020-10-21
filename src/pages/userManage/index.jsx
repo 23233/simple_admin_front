@@ -244,7 +244,7 @@ const DataShow = props => {
         </Popconfirm>
       </Col>
       <Col>
-        <Button onClick={e => fetchDataList(selectRouter)}>刷新</Button>
+        <Button onClick={e => fetchDataList(selectRouter, { page: routerData?.page || 1 })}>刷新</Button>
       </Col>
       <Col>
         <Button target={'_blank'} href={ROUTERS.reg} type={'link'}>
