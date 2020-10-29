@@ -195,7 +195,7 @@ const DataShow = props => {
 
   useEffect(() => {
     if (params.tab) {
-      setNowPage(1);
+      setNowPage(params.page || 1);
       setSelectRouter(params.tab);
       // 获取表的信息
       fetchDataInfo(params.tab);
@@ -226,7 +226,7 @@ const DataShow = props => {
 
   const tabChange = tab => {
     setSearchInput(undefined);
-    history.push(props.match.url + '?tab=' + tab);
+    history.push({ pathname: props.location.pathname, query: { tab: tab } });
   };
 
 
@@ -234,9 +234,15 @@ const DataShow = props => {
   const searchChange = value => {
     if (value) {
       if (searchSelectCols.length) {
-        history.push(
-          props.match.url + '?tab=' + selectRouter + '&search=' + value + '&cols=' + searchSelectCols + '&match=' + searchFullMatch,
-        );
+        history.push({
+          pathname: props.location.pathname,
+          query: {
+            ...props.location.query,
+            search: value,
+            cols: searchSelectCols.join(','),
+            match: searchFullMatch,
+          },
+        });
       } else {
         message.warning('请选择一个搜索列名');
       }
@@ -410,7 +416,8 @@ const DataShow = props => {
 
   const pageChange = (page, pageSize) => {
     setNowPage(page);
-    fetchDataRun();
+    history.push({ pathname: props.location.pathname, query: { ...props.location.query, page: page } });
+    // fetchDataRun();
     rowOnChange([]);
   };
 
