@@ -140,7 +140,12 @@ const DataShow = props => {
   // 删除选中行
   const { run: runDeleteRow } = useRequest(req.deleteRouterSelectData, {
     manual: true,
-    onSuccess: taskSuccess,
+    onSuccess: d => {
+      if (!d?.status) {
+        setSelectRow([]);
+        fetchDataRun()
+      }
+    },
   });
   // 新增数据
   const { run: addRow, loading: addRowLoading } = useRequest(req.addData, {
